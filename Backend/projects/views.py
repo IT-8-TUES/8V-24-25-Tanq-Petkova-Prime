@@ -1,10 +1,12 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import status
 from django.contrib.auth import get_user_model
-from .models import Firm,FirmMembership,Tasks
 from django.shortcuts import get_object_or_404
+
+from .models import Firm,FirmMembership,Tasks, Invites
 
 
 User = get_user_model()
@@ -66,7 +68,7 @@ class GetMemberFirms(APIView):
                 "owner": firm.owner.username,
                 "joined": membership.joined,
             })
-        return data
+        return Response(data,status = 200)
     
 class GetSingleFirm(APIView):
     permission_classes = [IsAuthenticated]
@@ -84,43 +86,119 @@ class GetSingleFirm(APIView):
     
 class GetMembers(APIView):
     permission_classes = [IsAuthenticated]
-    def get(self,request):
+
+    def get(self, request):
         firm = request.query_params.get('firm')
-        all = request.query_params.get('all')
+        all  = request.query_params.get('all')
         if not firm:
             return Response({"error": "Missing 'firm' parameter"}, status=status.HTTP_400_BAD_REQUEST)
-        if all == "Y":
-         members = User.objects.all()
-        else:
-         members =  FirmMembership.objects.filter(firm=firm)
-        return Response(members, status=status.HTTP_200_OK)
+
+        #if requesting only my firm members
+        if all != "Y":
+            members = FirmMembership.objects.filter(firm__name=firm) \
+                                            .select_related("member")
+
+            data = [{
+                "id": m.member.id,
+                "username": m.member.username,
+                "relation": "member",
+            } for m in members]
+
+            return Response(data, status=status.HTTP_200_OK)
+
+        #RETURN FILTERED - ALL USERS
+        owner_firm = Firm.objects.filter(name=firm, owner=request.user).first()  #get firm of current user
+        if owner_firm is None:
+            return Response({"error": "You do not own this firm"},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        #gather ids of this firms members
+        firm_member_ids = set(
+            FirmMembership.objects.filter(firm=owner_firm)
+                                  .values_list("member_id", flat=True)
+        )
+
+        #gather ids of ppl invited to the firm
+        invited_ids = set(
+            Invites.objects.filter(sent_firm=owner_firm.name)
+                           .values_list("sent_to_id", flat=True)
+        )
+
+        #build finished list, with user type - member, invited, normal (not related to the firm)
+        data = []
+        for user in User.objects.all():
+            if user.id in firm_member_ids:
+                relation = "member"
+            elif user.id in invited_ids:
+                relation = "invited"
+            else:
+                relation = "normal"
+
+            data.append({
+                "id": user.id,
+                "username": user.username,
+                "relation": relation,
+            })
+
+        return Response(data, status=status.HTTP_200_OK)
+
+
+class KickMember(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        membership_id = request.data.get("membership_id")
+        if not membership_id:
+            return Response({"detail": "membership_id is required"}, status=400)
+
+        membership = get_object_or_404(FirmMembership, pk=membership_id)
+
+        firm = membership.firm
+        if firm.owner != request.user:
+            return Response({"detail": "Forbidden – only the firm owner can kick members"},
+                            status=status.HTTP_403_FORBIDDEN)
+
+        # Prevent owner from kicking themselves through this endpoint
+        if membership.member == request.user:
+            return Response({"detail": "Owner cannot remove themselves"}, status=400)
+
+        membership.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
     
 
 class AssignTask(APIView):
     permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]          # accept files
 
     def post(self, request):
-        user_id = request.data.get("user")
-        name = request.data.get("name")
-        description = request.data.get("description")
+        user_id      = request.data.get("user")
+        firm_id = request.data.get("firm_id")
+        name         = request.data.get("name")
+        description  = request.data.get("description")
+        attachment   = request.FILES.get("attachment")      # may be None
 
         if not all([user_id, name, description]):
-            return Response(
-                {"detail": "user, name and description are required"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            return Response({"detail": "user, name and description are required"},
+                            status=status.HTTP_400_BAD_REQUEST)
 
-        member = FirmMembership.objects.filter(pk=user_id).first()
-        if member is None:
-            return Response(
-                {"detail": "User not found"},
-                status=status.HTTP_404_NOT_FOUND,
-            )
+        requester_membership = get_object_or_404(
+            FirmMembership, member=request.user, firm_id=firm_id
+        )
+        if not requester_membership:
+            return Response({"detail": "You are not in any firm."}, status=403)
+
+        member = get_object_or_404(
+            FirmMembership, member_id=user_id, firm_id=firm_id
+        )
+        if not member:
+            return Response({"detail": "User not in your firm."}, status=404)
 
         task = Tasks.objects.create(
             user_details=member,
             name=name,
             description=description,
+            attachment=attachment,
         )
 
         return Response(
@@ -129,63 +207,64 @@ class AssignTask(APIView):
                 "name": task.name,
                 "description": task.description,
                 "status": task.status,
+                "attachment": request.build_absolute_uri(task.attachment.url) if task.attachment else None,
                 "user": task.user_details.id,
             },
-            status=status.HTTP_201_CREATED,
+            status=201,
         )
+
 
 class GetAllTaskMember(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        name = request.data.get("name")
+        name = request.query_params.get("name")
         if not name:
-            return Response({"error": "Missing 'name' parameter"}, status=status.HTTP_400_BAD_REQUEST)
-        
+            return Response({"error": "Missing 'name' parameter"}, status=400)
+
         tasks = Tasks.objects.filter(name=name)
-        data = []
-        for task in tasks:
-            data.append({
-                "task_id": task.id,
-                "task_name": task.name,
-                "description": task.description,
-                "contents": task.contents,
-                "status": task.status,
-                "owner": task.user_details.username,
-            })
-        return data
+        data = [{
+            "task_id":   t.id,
+            "task_name": t.name,
+            "description": t.description,
+            "contents":   t.contents,
+            "status":     t.status,
+            "attachment": request.build_absolute_uri(t.attachment.url) if t.attachment else None,
+            "owner": t.user_details.member.username
+        } for t in tasks]
+
+        return Response(data, status=200)
+
     
 
 class EditTask(APIView):
     permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
 
     def patch(self, request, pk):
- 
         task = get_object_or_404(Tasks, pk=pk)
-
         if task.user_details.member != request.user:
-            return Response({"detail": "Forbidden"}, status=status.HTTP_403_FORBIDDEN)
+            return Response({"detail": "Forbidden"}, status=403)
 
-        allowed = {"name", "description", "contents", "status"}
-        invalid_keys = set(request.data) - allowed
-        if invalid_keys:
-            return Response(
-                {"detail": f"Invalid field(s): {', '.join(invalid_keys)}"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        
-        if "status" in request.data:
-            valid_statuses = {choice[0] for choice in Tasks.STATUS_CHOICES}
-            if request.data["status"] not in valid_statuses:
-                return Response(
-                    {"detail": f"status must be one of {', '.join(valid_statuses)}"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+        allowed_json = {"name", "description", "contents", "status"}
+        attachment   = request.FILES.get("attachment")
 
-        for field in allowed:
+
+        # JSON fields
+        for field in allowed_json:
             if field in request.data:
                 setattr(task, field, request.data[field])
 
+        # file field (optional)
+        if attachment:
+            task.attachment = attachment
+
+        # status validation
+        if "status" in request.data:
+            valid_statuses = {c[0] for c in Tasks.STATUS_CHOICES}
+            if task.status not in valid_statuses:
+                return Response({"detail": f"status must be one of {', '.join(valid_statuses)}"},
+                                status=400)
         task.save()
 
         return Response(
@@ -195,9 +274,10 @@ class EditTask(APIView):
                 "description": task.description,
                 "contents": task.contents,
                 "status": task.status,
+                "attachment": request.build_absolute_uri(task.attachment.url) if task.attachment else None,
                 "user": task.user_details.id,
             },
-            status=status.HTTP_200_OK,
+            status=200,
         )
 
 
@@ -206,13 +286,115 @@ class DeleteTask(APIView):
 
     def delete(self, request, pk):
         task = get_object_or_404(Tasks, pk=pk)
-        
+
         if task.user_details.member != request.user:
             return Response({"detail": "Forbidden"}, status=status.HTTP_403_FORBIDDEN)
 
         task.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
+class SendInvite(APIView):
+    permission_classes = [IsAuthenticated]
 
+    def post(self, request):
+        recipient_id = request.data.get("recipient")
+
+        if not recipient_id:
+            return Response({"detail": "Missing 'recipient' field"}, status=400)
+
+        # Check if the recipient exists (for debug)
+        recipient = User.objects.filter(pk=recipient_id).first()
+        if not recipient:
+            return Response({"detail": "User not found"}, status=404)
+
+        invite = Invites.objects.create(
+            sent_to=recipient,
+            sent_from=request.user,
+            sent_firm = Firm.objects.filter(owner=request.user).values_list("name", flat=True).first()
+        )
+
+        return Response(
+            {
+                "id": invite.id,
+                "sent_to": invite.sent_to.username,
+                "sent_from": invite.sent_from.username,
+                "sent_time": invite.sent_time,
+            },
+            status=201
+        )
+
+class GetMyInvites(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        invites = Invites.objects.filter(sent_to=request.user).select_related("sent_from")
+
+        data = []
+        for invite in invites:
+            data.append({
+                "invite_id": invite.id,
+                "sent_from_id": invite.sent_from.id,
+                "sent_from_username": invite.sent_from.username,
+                "sent_time": invite.sent_time,
+            })
+
+        return Response(data, status=status.HTTP_200_OK)
+    
+class AcceptInvite(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+
+        invite_id = request.data.get("invite_id")
+
+        if not invite_id:
+            return Response({"detail": "invite_id is required"}, status=400)
+
+        invite = get_object_or_404(
+            Invites, pk=invite_id, sent_to=request.user
+        )
+
+        firm = Firm.objects.filter(name=invite.sent_firm).first()
+        if not firm:
+            return Response({"detail": "Firm not found"}, status=404)
+
+        # Create membership if it doesn't already exist
+        membership, created = FirmMembership.objects.get_or_create(
+            firm=firm,
+            member=request.user,
+        )
+
+        # Delete the invite
+        invite.delete()
+
+        return Response(
+            {
+                "membership_id": membership.id,
+                "firm_id": firm.id,
+                "firm_name": firm.name,
+                "joined": membership.joined,
+                "was_created": created,   # False if membership already existed
+            },
+            status=status.HTTP_201_CREATED,
+        )
+
+    
+class RejectInvite(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+
+        invite_id = request.data.get("invite_id")
+        if not invite_id:
+            return Response({"detail": "invite_id is required"}, status=400)
+
+        invite = get_object_or_404(
+            Invites,
+            pk=invite_id,
+            sent_to=request.user
+        )
+
+        invite.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
     
 
