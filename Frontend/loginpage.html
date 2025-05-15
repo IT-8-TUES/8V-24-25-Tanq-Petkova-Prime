@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Page</title>
+  <style>
+    /* Your existing CSS remains the same */
+    body {
+      background-color: #f0f2f5;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .login-container {
+      background: #fff;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      width: 350px;
+    }
+
+    .login-container h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      color: #555;
+      font-weight: 500;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 12px;
+      background-color: #4a6cf7;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
+      transition: background-color 0.3s;
+    }
+
+    .login-btn:hover {
+      background-color: #3a5bd9;
+    }
+
+    .error {
+      color: red;
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .success {
+      color: green;
+      text-align: center;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h2>Login</h2>
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" required>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" required>
+      </div>
+
+      <button type="submit" class="login-btn">Login</button>
+      <div id="message" class="error"></div>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const messageDiv = document.getElementById('message');
+      
+      messageDiv.textContent = 'Logging in...';
+      messageDiv.className = '';
+
+      try {
+        const response = await fetch('http://localhost:8000/api/account/token/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            username: username,
+            password: password
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          messageDiv.className = 'success';
+          messageDiv.textContent = 'Login successful!';
+          // Store the tokens
+          localStorage.setItem('access_token', data.access);
+          localStorage.setItem('refresh_token', data.refresh);
+          // Redirect to another page
+          window.location.href = '/dashboard.html';
+        } else {
+          messageDiv.className = 'error';
+          messageDiv.textContent = data.detail || 'Invalid credentials';
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        messageDiv.className = 'error';
+        messageDiv.textContent = 'Network error. Please try again.';
+      }
+    });
+  </script>
+</body>
+</html>
