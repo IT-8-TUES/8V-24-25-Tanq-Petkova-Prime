@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Create Firms</title>
+<style>
+  body {
+    margin: 0; font-family: Arial, sans-serif; display: flex; height: 100vh;
+  }
+  .main {
+    flex: 1; padding: 40px; display: flex; flex-direction: column;
+  }
+  .header {
+    font-size: 28px; font-weight: bold; margin-bottom: 30px; align-self: flex-start;
+  }
+  .form-group {
+    margin-bottom: 20px; max-width: 350px; display: flex; flex-direction: column;
+  }
+  label {
+    margin-bottom: 6px; font-weight: bold;
+  }
+  input, textarea {
+    padding: 10px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px;
+  }
+  .create-button {
+    margin-top: auto; padding: 12px 20px; background-color: #007bff; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; align-self: flex-start; min-width: 140px;
+  }
+  .create-button:hover {
+    background-color: #0056b3;
+  }
+  .message {
+    margin-top: 20px; font-weight: bold;
+  }
+  .message.success {
+    color: green;
+  }
+  .message.error {
+    color: red;
+  }
+  .sidebar {
+    width: 80px; background-color: #f9f9f9; display: flex; justify-content: flex-start; align-items: flex-start; position: relative; padding-top: 20px; flex-shrink: 0;
+  }
+  .sidebar::before {
+    content: ""; position: absolute; left: 0; top: 0; width: 1px; height: 100vh; background-color: #ccc; z-index: 1;
+  }
+  .user-icon {
+    width: 40px; height: 40px; margin: 0 auto; z-index: 2;
+  }
+</style>
+</head>
+<body>
+  <div class="main">
+    <div class="header">Create Firms</div>
+    <div class="form-group">
+      <label for="name">Firm Name *</label>
+      <input type="text" id="name" name="name" placeholder="Enter firm name" />
+    </div>
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea id="description" name="description" rows="4" placeholder="Enter description (optional)"></textarea>
+    </div>
+    <button class="create-button" onclick="createFirm()">Create a Firm</button>
+    <div id="message" class="message"></div>
+  </div>
+  <div class="sidebar">
+    <img
+      class="user-icon"
+      src="https://www.gstatic.com/images/branding/product/1x/avatar_circle_blue_512dp.png"
+      alt="User Icon"
+      title="User"
+    />
+  </div>
+
+<script>
+async function createFirm() {
+  const name = document.getElementById("name").value.trim();
+  const description = document.getElementById("description").value.trim();
+  const message = document.getElementById("message");
+  message.textContent = "";
+  message.className = "message";
+
+  if (!name) {
+    message.textContent = "Firm name is required.";
+    message.classList.add("error");
+    return;
+  }
+
+  const url = `/api/firm/firms/create/?name=${encodeURIComponent(name)}&description=${encodeURIComponent(description)}`;
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Authorization": "Bearer YOUR_AUTH_TOKEN_HERE"  // Replace with actual token
+      }
+    });
+
+    const text = await response.text();
+    let data;
+    try {
+      data = text ? JSON.parse(text) : {};
+    } catch {
+      data = {};
+    }
+
+    if (!response.ok) {
+      const errorMsg = data.error || data.detail || `Error: ${response.status} ${response.statusText}`;
+      throw new Error(errorMsg);
+    }
+
+    message.textContent = "Firm created successfully!";
+    message.classList.add("success");
+    document.getElementById("name").value = "";
+    document.getElementById("description").value = "";
+
+  } catch (err) {
+    message.textContent = err.message;
+    message.classList.add("error");
+  }
+}
+</script>
+</body>
+</html>
+
+
+
+
