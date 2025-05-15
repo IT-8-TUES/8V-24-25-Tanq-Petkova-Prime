@@ -16,7 +16,8 @@ class FirmMembership(models.Model):
 
 class Tasks(models.Model):
     name = models.CharField(max_length=20)
-    description = models.TextField(null=True)
+    description = models.TextField()
+    contents = models.TextField(null=True)
     
     user_details = models.ForeignKey(FirmMembership, on_delete=models.CASCADE)
     STATUS_CHOICES = [
