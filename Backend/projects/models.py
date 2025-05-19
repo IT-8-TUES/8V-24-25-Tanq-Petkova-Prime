@@ -39,7 +39,23 @@ class Tasks(models.Model):
     )
 
 class Invites(models.Model):
-    sent_to = models.ForeignKey(User, on_delete=models.CASCADE)
-    sent_from = models.ForeignKey(User, on_delete=models.CASCADE)
-    sent_firm = models.CharField(max_length=40)
+    sent_to   = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="received_invites",  
+    )
+    sent_from = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="sent_invites",       # avoids FK clash
+    )
+    firm = models.ForeignKey(            
+        Firm,
+        on_delete=models.CASCADE,
+        related_name="invites",
+    )
     sent_time = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Invite to {self.sent_to} for {self.firm.name}"
+

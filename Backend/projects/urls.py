@@ -15,7 +15,8 @@ from .views import (
     GetMyInvites,
     AcceptInvite,
     RejectInvite,
-    KickMember
+    KickMember,
+    GetAllTasksForFirm
 )
 
 urlpatterns = [
@@ -28,6 +29,7 @@ urlpatterns = [
 
     path("tasks/assign/", AssignTask.as_view(), name="assign-task"),
     path("tasks/by-name/", GetAllTaskMember.as_view(), name="get-tasks-by-name"),
+    path("tasks/by-firm/", GetAllTasksForFirm.as_view(), name="get-tasks-by-firm"),
     path("tasks/<int:pk>/edit/", EditTask.as_view(), name="edit-task"),
     path("tasks/<int:pk>/delete/", DeleteTask.as_view(), name="delete-task"),
 

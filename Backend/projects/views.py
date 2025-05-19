@@ -27,7 +27,7 @@ class CreateFirm(APIView):
             owner=request.user
         )
         FirmMembership.objects.create(
-            firm = name,
+            firm = firm,
             member = request.user
         )
 
@@ -218,11 +218,44 @@ class GetAllTaskMember(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        name = request.query_params.get("name")
-        if not name:
-            return Response({"error": "Missing 'name' parameter"}, status=400)
+        member = request.user
 
-        tasks = Tasks.objects.filter(name=name)
+        # Get all FirmMembership entries for this user
+        memberships = FirmMembership.objects.filter(member=member).select_related("firm")
+
+        # Filter tasks by those memberships
+        tasks = Tasks.objects.filter(user_details__in=memberships).select_related("user_details__member", "user_details__firm")
+
+        data = [{
+            "task_id":    t.id,
+            "task_name":  t.name,
+            "description":t.description,
+            "contents":   t.contents,
+            "status":     t.status,
+            "attachment": request.build_absolute_uri(t.attachment.url) if t.attachment else None,
+            "owner":      t.user_details.member.username,
+            "firm":       t.user_details.firm.name
+        } for t in tasks]
+
+        return Response(data, status=200)
+
+
+
+class GetAllTasksForFirm(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        firm_id = request.query_params.get("firm_id")
+        if not firm_id:
+            return Response({"error": "Missing 'firm_id' parameter"}, status=400)
+
+        # Check if user is part of the firm (safety)
+        if not FirmMembership.objects.filter(firm_id=firm_id, member=request.user).exists():
+            return Response({"detail": "You are not a member of this firm"}, status=403)
+
+        tasks = Tasks.objects.filter(user_details__firm_id=firm_id) \
+                             .select_related("user_details__member")
+
         data = [{
             "task_id":   t.id,
             "task_name": t.name,
@@ -230,12 +263,10 @@ class GetAllTaskMember(APIView):
             "contents":   t.contents,
             "status":     t.status,
             "attachment": request.build_absolute_uri(t.attachment.url) if t.attachment else None,
-            "owner": t.user_details.member.username
+            "assigned_to": t.user_details.member.username
         } for t in tasks]
 
         return Response(data, status=200)
-
-    
 
 class EditTask(APIView):
     permission_classes = [IsAuthenticated]
