@@ -10,22 +10,28 @@ class Firm(models.Model):
 
 
 class FirmMembership(models.Model):
-    firm   = models.ForeignKey(Firm, on_delete=models.CASCADE)
+    firm = models.ForeignKey(Firm, on_delete=models.CASCADE)
     member = models.ForeignKey(User, on_delete=models.CASCADE)
     joined = models.DateTimeField(auto_now_add=True)
 
 class Tasks(models.Model):
-    name = models.CharField(max_length=20)
+    name        = models.CharField(max_length=20)
     description = models.TextField()
-    contents = models.TextField(null=True)
+    contents    = models.TextField(null=True)
     
+    attachment  = models.FileField(
+        upload_to="task_attachments/",
+        null=True,
+        blank=True,
+    )
+
     user_details = models.ForeignKey(FirmMembership, on_delete=models.CASCADE)
+
     STATUS_CHOICES = [
         ("unstarted", "Unstarted"),
-        ("pending", "Pending"),
-        ("complete", "Complete"),
+        ("pending",   "Pending"),
+        ("complete",  "Complete"),
     ]
-
     status = models.CharField(
         max_length=10,
         choices=STATUS_CHOICES,
@@ -33,5 +39,23 @@ class Tasks(models.Model):
     )
 
 class Invites(models.Model):
-    send_to = models.ForeignKey(User, on_delete=models.CASCADE)
-    send_from = models.ForeignKey(User, on_delete=models.CASCADE)
+    sent_to   = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="received_invites",  
+    )
+    sent_from = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="sent_invites",       # avoids FK clash
+    )
+    firm = models.ForeignKey(            
+        Firm,
+        on_delete=models.CASCADE,
+        related_name="invites",
+    )
+    sent_time = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Invite to {self.sent_to} for {self.firm.name}"
+

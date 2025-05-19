@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Create Firm</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #4361ee;
+      --primary-dark: #3a56d4;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --gray: #6c757d;
+      --light-gray: #e9ecef;
+      --border-radius: 12px;
+      --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      --transition: all 0.3s ease;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background-color: #f5f7ff;
+      color: var(--dark);
+      min-height: 100vh;
+      margin: 0;
+      padding: 0 0 0 100px;
+      display: flex;
+      justify-content: flex-start;
+    }
+    .main-content {
+      width: 100%;
+      max-width: 800px;
+      padding: 3rem 0;
+    }
+    .header {
+      margin-bottom: 2rem;
+    }
+    .page-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--dark);
+    }
+        .stats-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: white;
+      border-radius: var(--border-radius);
+      padding: 1.5rem;
+      box-shadow: var(--box-shadow);
+    }
+    .stat-title {
+      font-size: 0.85rem;
+      color: var(--gray);
+      margin-bottom: 0.5rem;
+    }
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--dark);
+    }
+    .stat-change {
+      display: flex;
+      align-items: center;
+      font-size: 0.8rem;
+      margin-top: 0.5rem;
+    }
+    .stat-change.up {
+      color: #2ecc71;
+    }
+    .stat-change.down {
+      color: #e74c3c;
+    }
+    .card {
+      background: #fff;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      padding: 2.5rem;
+      width: 100%;
+    }
+    .card-header {
+      margin-bottom: 2rem;
+    }
+    .card-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 0.5rem;
+    }
+    .card-subtitle {
+      color: var(--gray);
+      font-size: 0.9rem;
+    }
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+    .form-control {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border: 1px solid var(--light-gray);
+      border-radius: var(--border-radius);
+      font-size: 0.95rem;
+      transition: var(--transition);
+    }
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+    }
+    textarea.form-control {
+      min-height: 120px;
+      resize: vertical;
+    }
+    .file-upload {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .file-upload-btn {
+      padding: 0.75rem 1.25rem;
+      background-color: var(--light-gray);
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    .file-upload-btn:hover {
+      background-color: #e2e6ea;
+    }
+    .file-name {
+      font-size: 0.8rem;
+      color: var(--gray);
+      margin-top: 0.5rem;
+      display: none;
+    }
+    .btn-primary {
+      width: 100%;
+      padding: 1rem;
+      border-radius: var(--border-radius);
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      border: none;
+      background-color: var(--primary);
+      color: white;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+    }
+    .alert {
+      padding: 1rem;
+      border-radius: var(--border-radius);
+      margin-bottom: 1.5rem;
+      display: none;
+    }
+    .alert-success {
+      background-color: rgba(46, 204, 113, 0.1);
+      color: #27ae60;
+      border: 1px solid rgba(46, 204, 113, 0.2);
+    }
+    .alert-error {
+      background-color: rgba(231, 76, 60, 0.1);
+      color: #e74c3c;
+      border: 1px solid rgba(231, 76, 60, 0.2);
+    }
+    @media (max-width: 768px) {
+      body {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+      .main-content {
+        padding: 1.5rem 0;
+      }
+      .stats-container {
+        grid-template-columns: 1fr;
+      }
+      .card {
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="main-content">
+    <div class="header">
+      <h1 class="page-title">Create New Firm</h1>
+    </div>
+    <div class="stats-container">
+      <div class="stat-card">
+        <div class="stat-title">Total Firms</div>
+        <div class="stat-value">24</div>
+        <div class="stat-change up">
+          <i class="fas fa-arrow-up"></i>
+          12% from last month
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">Active Projects</div>
+        <div class="stat-value">156</div>
+        <div class="stat-change down">
+          <i class="fas fa-arrow-down"></i>
+          5% from last quarter
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">Team Members</div>
+        <div class="stat-value">84</div>
+        <div class="stat-change up">
+          <i class="fas fa-arrow-up"></i>
+          8 new hires
+        </div>
+      </div>
+    </div>
+    <div class="form-container">
+      <div id="msgOk" class="alert alert-success">Firm created successfully!</div>
+      <div id="msgErr" class="alert alert-error"></div>
+      
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Firm Information</h2>
+          <p class="card-subtitle">Enter details about your firm</p>
+        </div>
+        <div class="form-group">
+          <label for="name" class="form-label">Firm Name *</label>
+          <input id="name" type="text" class="form-control" placeholder="e.g. Acme Inc." />
+        </div>
+        <div class="form-group">
+          <label for="desc" class="form-label">Description</label>
+          <textarea id="desc" class="form-control" rows="4" placeholder="Tell us about your firm..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Logo</label>
+          <div class="file-upload">
+            <input type="file" id="logo" accept="image/*" style="display: none;">
+            <label for="logo" class="file-upload-btn">
+              <i class="fas fa-upload"></i>
+              Choose File
+            </label>
+            <div class="file-name">No file chosen</div>
+          </div>
+        </div>
+        <button id="createBtn" class="btn-primary">
+          <i class="fas fa-plus"></i>
+          Create Firm
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { fetchWithAuth } from './auth.mjs';
+    const createBtn = document.getElementById('createBtn');
+    const msgOk  = document.getElementById('msgOk');
+    const msgErr = document.getElementById('msgErr');
+    const logoInput = document.getElementById('logo');
+    const fileNameDisplay = document.querySelector('.file-name');
+    logoInput.addEventListener('change', function() {
+      if (this.files.length > 0) {
+        fileNameDisplay.textContent = this.files[0].name;
+        fileNameDisplay.style.display = 'block';
+      } else {
+        fileNameDisplay.style.display = 'none';
+      }
+    });
+    createBtn.addEventListener('click', async () => {
+      msgOk.style.display = msgErr.style.display = 'none';
+      const name = document.getElementById('name').value.trim();
+      const desc = document.getElementById('desc').value.trim();
+      if (!name) {
+        msgErr.textContent = 'Firm name is required';
+        msgErr.style.display = 'block';
+        return;
+      }
+      const url = `http://127.0.0.1:8000/api/firm/firms/create/?name=${encodeURIComponent(name)}&description=${encodeURIComponent(desc)}`;
+      try {
+        const res  = await fetchWithAuth(url, { method: 'POST' });
+        const data = await res.json();
+        if (!res.ok) {
+          msgErr.textContent = data.detail || data.error || 'Request failed';
+          msgErr.style.display = 'block';
+          return;
+        }
+        msgOk.style.display = 'block';
+        document.getElementById('name').value = '';
+        document.getElementById('desc').value = '';
+        logoInput.value = '';
+        fileNameDisplay.style.display = 'none';
+        msgOk.scrollIntoView({ behavior: 'smooth' });
+      } catch {
+        msgErr.textContent = 'Network error - please try again';
+        msgErr.style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>
