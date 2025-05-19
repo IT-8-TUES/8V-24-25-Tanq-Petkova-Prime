@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TanqTasks | Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --accent: #f59e0b;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --gray: #64748b;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            padding: 1.5rem;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            border-bottom: 1px solid rgba(100, 116, 139, 0.3);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .logo-icon {
+            color: var(--accent);
+        }
+        nav {
+            background-color: white;
+            width: 80px;
+            height: 100vh;
+            position: fixed;
+            right: 0;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+            z-index: 90;
+            justify-content: space-between;
+            padding: 1.5rem 0;
+        }
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2.5rem;
+            width: 100%;
+        }
+        .nav-link {
+            text-decoration: none;
+            color: var(--gray);
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            padding: 0.5rem 0;
+        }
+        .nav-link:hover {
+            color: var(--primary);
+            background-color: rgba(37, 99, 235, 0.05);
+        }
+        .account-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin: 0 auto;
+        }
+        .dashboard {
+            flex: 1;
+            padding: 2rem;
+            margin-right: 80px;
+            display: flex;
+            flex-direction: column;
+        }
+        .welcome-section {
+            display: flex;
+            align-items: center;
+            gap: 3rem;
+            margin-bottom: 2rem;
+        }
+        .welcome-content {
+            flex: 1;
+        }
+        .welcome-title {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .welcome-description {
+            color: var(--gray);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            max-width: 600px;
+        }
+        .welcome-image {
+            flex: 1;
+            max-width: 50%;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .welcome-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .about-section {
+            background-color: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--dark);
+        }
+        .about-text {
+            color: var(--gray);
+            line-height: 1.6;
+        }
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            color: var(--gray);
+            font-size: 0.875rem;
+            background-color: white;
+            border-top: 1px solid rgba(100, 116, 139, 0.3);
+            margin-top: auto;
+        }
+        @media (max-width: 768px) {
+            .welcome-section {
+                flex-direction: column;
+            }
+            .welcome-image {
+                max-width: 100%;
+                margin-top: 2rem;
+            }
+            nav {
+                width: 60px;
+            }
+            .dashboard {
+                margin-right: 60px;
+            }
+            .welcome-title {
+                font-size: 2rem;
+            }
+            .nav-links {
+                gap: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <i class="fas fa-tasks logo-icon"></i>
+            <span>TanqTasks</span>
+        </div>
+    </div>
+    <nav>
+        <div class="nav-links">
+            <div class="account-icon">
+                <i class="fas fa-user"></i>
+            </div>
+            <a href="#" class="nav-link">
+                <i class="fas fa-home"></i>
+            </a>
+            <a href="#" class="nav-link">
+                <i class="fas fa-project-diagram"></i>
+            </a>
+            <a href="#" class="nav-link">
+                <i class="fas fa-tasks"></i>
+            </a>
+            <a href="#" class="nav-link">
+                <i class="fas fa-info-circle"></i>
+            </a>
+            <a href="#" class="nav-link">
+                <i class="fas fa-cog"></i>
+            </a>
+        </div>
+    </nav>
+    <main class="dashboard">
+        <section class="welcome-section">
+            <div class="welcome-content">
+                <h1 class="welcome-title">Welcome Back!</h1>
+                <p class="welcome-description">
+                    TanqTasks is your all-in-one productivity solution designed to streamline task management 
+                    and boost efficiency for individuals and teams alike. Our intuitive platform helps you 
+                    organize, prioritize, and accomplish your goals with ease.
+                </p>
+            </div>
+            <div class="welcome-image">
+                <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="Productivity illustration">
+            </div>
+        </section>
+        <section class="about-section">
+            <h2 class="section-title">About TanqTasks</h2>
+            <p class="about-text">
+                TanqTasks is a powerful productivity platform designed to help individuals and teams organize their work efficiently. Our mission is to transform how you manage tasks, projects, and collaborations.
+            </p>
+            <br>
+            <p class="about-text">
+                With intuitive features and a clean interface, TanqTasks helps you focus on what matters most. Whether you're managing personal to-dos or complex team projects, we've got you covered.
+            </p>
+        </section>
+    </main>
+    <footer>
+        <p>© 2025 TanqTasks. All rights reserved.</p>
+    </footer>
+</body>
+</html>
