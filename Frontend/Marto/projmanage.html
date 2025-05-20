@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TanqTasks | My Firms</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- ───────────  STYLE  ─────────── -->
+<style>
+/* PALETTE -------------------------------------------------------------- */
+:root{
+  --yellow:#ffd247; --yellow-dark:#e0b633; --teal:#0d8f9a;
+  --blue-line:#0d8f9a40; --gray-900:#111827; --gray-700:#374151;
+  --gray-500:#6b7280;   --gray-200:#e5e7eb;  --gray-50:#f8f9fb;
+}
+/* RESET ----------------------------------------------------------------*/
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Segoe UI",system-ui,sans-serif}
+
+/* HEADER ---------------------------------------------------------------*/
+.header{padding:18px 32px;border-bottom:2px solid var(--gray-200);
+        display:flex;align-items:center;background:var(--gray-50);}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:24px}
+.logo i{color:var(--yellow-dark)} .logo span{color:var(--teal)}
+.header::after{content:"";display:block;height:2px;background:var(--blue-line)}
+
+/* RIGHT-SIDEBAR NAV ----------------------------------------------------*/
+nav{
+  width:92px;height:100vh;position:fixed;right:0;top:0;background:#fff;
+  border-left:2px solid var(--gray-200);box-shadow:-6px 0 10px rgba(0,0,0,.04);
+  display:flex;flex-direction:column;justify-content:space-between;padding:36px 0;z-index:1200;
+}
+.nav-links{display:flex;flex-direction:column;align-items:center;gap:38px}
+.nav-link{
+  text-decoration:none;font-size:23px;color:var(--gray-500);width:100%;display:flex;justify-content:center;
+  padding:8px 0;border-left:2px solid transparent;transition:.25s;
+}
+.nav-link:hover{color:var(--teal);background:var(--gray-50);border-left-color:var(--yellow)}
+.account-icon{width:48px;height:48px;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center}
+
+/* MAIN GRID ------------------------------------------------------------*/
+#grid{display:flex;flex-wrap:wrap;gap:32px;padding:48px;margin-right:92px}
+.card{
+  width:calc(33.333% - 32px);min-width:260px;background:#fff;border:2px solid var(--gray-200);
+  padding:68px 32px 32px;position:relative;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.06);
+}
+.card::before{content:"";position:absolute;inset:0;border:2px solid var(--blue-line);
+              transform:translate(10px,10px);z-index:-1}
+.name-tab{
+  position:absolute;top:-18px;left:32px;background:#fff;border:2px solid var(--gray-200);
+  padding:4px 12px;font-weight:600;color:var(--gray-900);
+}
+.name-tab::before{content:"";position:absolute;inset:0;border:2px solid var(--blue-line);
+                  transform:translate(6px,6px);z-index:-1}
+.logo-small{
+  position:absolute;top:14px;right:20px;width:40px;height:40px;object-fit:cover;
+  border:2px solid var(--gray-200);background:#fff;
+}
+.owner{font-size:13px;color:var(--gray-500);margin-bottom:10px}
+.desc{font-size:14px;color:var(--gray-700);line-height:1.6}
+
+/* delete-extension (owner only) */
+.del-tab{
+  position:absolute;top:-18px;right:32px;background:#fff;border:2px solid var(--gray-200);
+  padding:4px 12px;font-size:13px;color:#e74c3c;cursor:pointer;
+}
+.del-tab::before{content:"";position:absolute;inset:0;border:2px solid var(--blue-line);
+                 transform:translate(6px,6px);z-index:-1}
+
+/* OVERLAY & POPUPS -----------------------------------------------------*/
+#overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-start;
+  justify-content:center;overflow-y:auto;padding:60px 0 40px;z-index:1100;
+}
+#overlay.show{display:flex}
+
+.popup{
+  background:#fff;border:2px solid var(--gray-200);width:880px;max-width:90%;min-height:420px;
+  box-shadow:0 6px 18px rgba(0,0,0,.09);display:flex;flex-direction:column;position:relative;margin:0 12px;
+  transition:.25s;
+}
+.popup.shrink{width:560px}
+.popup::before{content:"";position:absolute;inset:0;border:2px solid var(--blue-line);
+               transform:translate(10px,10px);z-index:-1}
+
+.popup header{display:flex;align-items:center;gap:18px;padding:18px 24px;border-bottom:2px solid var(--gray-200)}
+.popup header img{width:56px;height:56px;border:2px solid var(--gray-200);object-fit:cover;background:#fff}
+.popup header h3{font-size:22px;margin-right:auto}
+.edit-btn{font-size:16px;color:var(--teal);cursor:pointer;margin-right:8px}
+.close{font-size:22px;color:var(--gray-500);cursor:pointer}
+
+.desc-full{padding:14px 24px;font-size:14px;color:var(--gray-700);border-bottom:2px solid var(--gray-200)}
+
+/* **NEW**: side-by-side wrapper for tasks & members */
+.popup .split { display:flex; gap:24px; flex:1; }
+
+.section-box{
+  flex:1;border:2px solid var(--gray-200);margin:18px;display:flex;flex-direction:column;position:relative;
+}
+.section-box::before{content:"";position:absolute;inset:0;border:2px solid var(--blue-line);
+                     transform:translate(6px,6px);z-index:-1}
+.section-title{background:#fff;font-weight:600;font-size:15px;padding:6px 12px;position:absolute;top:-16px;left:18px}
+.section-inner{padding:32px 24px;overflow:auto}
+
+.list-item{border:2px solid var(--gray-200);padding:8px 12px;margin-bottom:12px;font-size:14px;position:relative}
+.list-item.mine{background:var(--yellow);border-color:var(--yellow-dark)}
+.kick{position:absolute;top:4px;right:6px;font-size:13px;color:#e74c3c;cursor:pointer}
+
+/* secondary popups (task / invite / edit) */
+.subpopup{
+  background:#fff;border:2px solid var(--gray-200);width:380px;
+  box-shadow:0 6px 18px rgba(0,0,0,.09);position:relative;margin-left:24px;padding:24px 24px 32px;
+}
+.subpopup::before{content:"";position:absolute;inset:0;border:2px solid var(--blue-line);
+                  transform:translate(8px,8px);z-index:-1}
+.subpopup label{display:block;font-size:13px;margin-top:10px;margin-bottom:4px;color:var(--gray-700)}
+.subpopup input,.subpopup textarea,.subpopup select{width:100%;border:1px solid var(--gray-200);padding:8px;font-size:13px;margin-bottom:10px}
+.subpopup input[type=file]{padding:4px}
+.btn{padding:10px 20px;border:none;background:var(--teal);color:#fff;font-size:14px;font-weight:600;cursor:pointer}
+.subpopup .close{top:6px;right:10px}
+
+/* RESPONSIVE -----------------------------------------------------------*/
+@media(max-width:920px){.card{width:calc(50% - 32px)}}
+@media(max-width:640px){
+  nav{width:70px}#grid{margin-right:70px}.card{width:100%}
+  .popup{max-width:94%}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER ------------------------------------------------------------->
+<div class="header">
+</div>
+
+<!-- GRID --------------------------------------------------------------->
+<div id="grid"></div>
+
+<!-- SIDEBAR NAV -------------------------------------------------------->
+<nav>
+  <div class="nav-links">
+    <div class="account-icon"><i class="fas fa-user"></i></div>
+    <a href="#" class="nav-link"><i class="fas fa-home"></i></a>
+    <a href="#" class="nav-link"><i class="fas fa-project-diagram"></i></a>
+    <a href="#" class="nav-link"><i class="fas fa-tasks"></i></a>
+    <a href="#" class="nav-link"><i class="fas fa-info-circle"></i></a>
+    <a href="#" class="nav-link"><i class="fas fa-cog"></i></a>
+  </div>
+</nav>
+
+<!-- POPUP CONTAINER ---------------------------------------------------->
+<div id="overlay"></div>
+
+<script type="module">
+import { fetchWithAuth } from './auth.mjs';
+
+const username = localStorage.getItem('username');
+if (!username) alert('username missing');
+
+/* helpers */
+const $$ = s => document.querySelector(s);
+const grid = $$('#grid');
+const overlay = $$('#overlay');
+const closeOverlay = () => { overlay.classList.remove('show'); overlay.innerHTML=''; };
+window.closeOverlay = closeOverlay;
+const shrinkMain = () => $$('.popup')?.classList.add('shrink');
+const unShrink   = () => { if (!document.querySelector('.subpopup')) $$('.popup')?.classList.remove('shrink'); };
+
+/* initial load */
+(async () => {
+  const r = await fetchWithAuth(`http://127.0.0.1:8000/api/firm/firms/by-user/?user=${encodeURIComponent(username)}`);
+  const data = await r.json();
+  if (!r.ok) return alert('Could not load firms');
+  data.forEach(renderFirm);
+})();
+
+/* render firm card */
+function renderFirm(f){
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `
+    <div class="name-tab">${f.firm_name}</div>
+    ${f.image?`<img class="logo-small" src="${f.image}" alt="logo">`:''}
+    <div class="owner"><b>Owner:</b> ${f.owner}</div>
+    <div class="desc">${f.description||''}</div>`;
+  if (f.owner===username){
+    const del = document.createElement('div');
+    del.className = 'del-tab';
+    del.textContent = 'Delete';
+    del.onclick = e => { e.stopPropagation(); deleteFirm(f.firm_id,card); };
+    card.appendChild(del);
+  }
+  card.onclick = () => openFirmPopup(f);
+  grid.appendChild(card);
+}
+
+/* delete firm */
+async function deleteFirm(id,node){
+  if (!confirm('Delete this firm?')) return;
+  const r = await fetchWithAuth(`http://127.0.0.1:8000/api/firm/firms/${id}/delete/`,{method:'DELETE'});
+  if (r.status===204) node.remove(); else alert('Delete failed');
+}
+
+/* main popup */
+async function openFirmPopup(f){
+  overlay.classList.add('show'); overlay.innerHTML = '';
+  const pop = document.createElement('div'); pop.className = 'popup';
+  pop.innerHTML = `
+    <header>
+      ${f.image?`<img src="${f.image}" alt="logo">`:''}
+      <h3>${f.firm_name}</h3>
+      ${f.owner===username?'<span class="edit-btn" id="editFirm"><i class="fas fa-pen"></i></span>':''}
+      <span class="close" onclick="closeOverlay()">&times;</span>
+    </header>
+    <div class="desc-full">${f.description||''}</div>
+    <div class="split">
+      <div class="section-box" id="boxTasks">
+        <span class="section-title">Tasks ${f.owner===username?'<span class="plus-btn" id="addTask">＋</span>':''}</span>
+        <div class="section-inner" id="taskList">Loading…</div>
+      </div>
+      <div class="section-box" id="boxMembers">
+        <span class="section-title">Members ${f.owner===username?'<span class="plus-btn" id="inviteBtn">＋</span>':''}</span>
+        <div class="section-inner" id="memberList">Loading…</div>
+      </div>
+    </div>`;
+  overlay.appendChild(pop);
+
+  await Promise.all([loadTasks(f), loadMembers(f)]);
+  if (f.owner===username){
+    $$('#addTask').onclick   = () => openTaskPopup(f,pop);
+    $$('#inviteBtn').onclick = () => openInvitePopup(f,pop);
+    $$('#editFirm').onclick  = () => openFirmEditPopup(f,pop);
+  }
+}
+
+/* load tasks */
+async function loadTasks(f){
+  const wrap = $$('#taskList');
+  const r = await fetchWithAuth(`http://127.0.0.1:8000/api/firm/tasks/by-firm/?firm_id=${f.firm_id}`);
+  const data = await r.json(); wrap.innerHTML='';
+  data.forEach(t=>{
+    const itm = document.createElement('div');
+    itm.className = 'list-item' + (t.assigned_to===username?' mine':'');
+    itm.textContent = t.task_name;
+    wrap.appendChild(itm);
+  });
+}
+
+/* load members */
+async function loadMembers(f){
+  const wrap = $$('#memberList');
+  const r = await fetchWithAuth(`http://127.0.0.1:8000/api/firm/firms/members/?firm=${encodeURIComponent(f.firm_name)}`);
+  const data = await r.json(); wrap.innerHTML=`<div class="list-item mine">${f.owner} (owner)</div>`;
+  data.filter(m=>m.username!==f.owner).forEach(m=>{
+    const itm = document.createElement('div'); itm.className='list-item'; itm.textContent=m.username;
+    if (f.owner===username){
+      const k = document.createElement('span'); k.className='kick'; k.textContent='✖';
+      k.onclick = e => { e.stopPropagation(); kickMember(m.id,itm); };
+      itm.appendChild(k);
+    }
+    wrap.appendChild(itm);
+  });
+}
+
+/* kick member */
+async function kickMember(id,node){
+  if (!confirm('Kick this member?')) return;
+  const r = await fetchWithAuth('http://127.0.0.1:8000/api/firm/firms/kick/',{
+    method:'DELETE', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({membership_id:id})
+  });
+  if (r.status===204) node.remove(); else alert('Kick failed');
+}
+
+
+/* SUB-POPUPS (TASK / INVITE / EDIT) ----------------------------------- */
+function openTaskPopup(f,parent){
+  shrinkMain();
+  const sub=document.createElement('div');sub.className='subpopup';
+  sub.innerHTML=`
+     <span class="close" onclick="this.parentElement.remove();unShrink()">&times;</span>
+     <h3>Assign Task</h3>
+     <label>Member *</label><select id="memSel"><option>loading…</option></select>
+     <label>Name *</label><input id="tName">
+     <label>Description *</label><textarea id="tDesc" rows="3"></textarea>
+     <label>File</label><input id="tFile" type="file">
+     <button class="btn" id="saveTask">Assign</button>`;
+  parent.after(sub);
+  loadMemberSelect(f,sub.querySelector('#memSel'));
+  sub.querySelector('#saveTask').onclick=()=>saveTask(f,sub);
+}
+async function loadMemberSelect(f,sel){
+  const r=await fetchWithAuth(`http://127.0.0.1:8000/api/firm/firms/members/?firm=${encodeURIComponent(f.firm_name)}`);
+  const data=await r.json();sel.innerHTML='<option value="">— choose —</option>';
+  data.forEach(m=>{const o=document.createElement('option');o.value=m.id;o.textContent=m.username;sel.appendChild(o);});
+}
+async function saveTask(f,pop){
+  const mem=pop.querySelector('#memSel').value,n=pop.querySelector('#tName').value.trim(),
+        d=pop.querySelector('#tDesc').value.trim(),file=pop.querySelector('#tFile').files[0];
+  if(!mem||!n||!d)return alert('Fill required fields');
+  const fd=new FormData();fd.append('firm_id',f.firm_id);fd.append('user',mem);
+  fd.append('name',n);fd.append('description',d);if(file)fd.append('attachment',file);
+  const r=await fetchWithAuth('http://127.0.0.1:8000/api/firm/tasks/assign/',{method:'POST',body:fd});
+  if(r.ok) location.reload(); else alert('Assign failed');
+}
+
+/* invite */
+function openInvitePopup(f,parent){
+  shrinkMain();
+  const sub=document.createElement('div');sub.className='subpopup';sub.style.width='320px';
+  sub.innerHTML=`<span class="close" onclick="this.parentElement.remove();unShrink()">&times;</span>
+                 <h3>Invite User</h3><div id="userList" style="max-height:280px;overflow:auto">Loading…</div>`;
+  parent.after(sub);
+  loadAllUsers(f,sub.querySelector('#userList'));
+}
+async function loadAllUsers(f,wrap){
+  const r=await fetchWithAuth(`http://127.0.0.1:8000/api/firm/firms/members/?firm=${encodeURIComponent(f.firm_name)}&all=Y`);
+  const data=await r.json();wrap.innerHTML='';
+  data.forEach(u=>{
+    if(u.relation==='member')return;
+    const div=document.createElement('div');div.className='list-item';
+    div.textContent=u.username+(u.relation==='invited'?' (invited)':'');
+    if(u.relation==='normal')div.onclick=()=>invite(u.id,div);
+    wrap.appendChild(div);
+  });
+}
+async function invite(uid,node){
+  const r=await fetchWithAuth('http://127.0.0.1:8000/api/firm/invites/send/',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({recipient:uid})
+  });
+  if(r.ok){node.textContent+=' (invited)';node.onclick=null;} else alert('Invite failed');
+}
+
+/* EDIT FIRM ----------------------------------------------------------- */
+function openFirmEditPopup(f,parent){
+  shrinkMain();
+  const sub=document.createElement('div');sub.className='subpopup';
+  sub.innerHTML=`
+    <span class="close" onclick="this.parentElement.remove();unShrink()">&times;</span>
+    <h3>Edit Firm</h3>
+    <label>Name *</label><input id="eName" value="${f.firm_name}">
+    <label>Description</label><textarea id="eDesc" rows="3">${f.description||''}</textarea>
+    <label for="logo">Logo</label><input id="eLogo" type="file" accept="image/*">
+    <button class="btn" id="saveEdit">Save</button>`;
+  parent.after(sub);
+
+  sub.querySelector('#saveEdit').onclick = async ()=>{
+      const newName=document.getElementById('eName').value.trim();
+      const newDesc=document.getElementById('eDesc').value.trim();
+      const file   =document.getElementById('eLogo').files[0];
+      if(!newName){alert('Name required');return;}
+      const fd=new FormData();
+      fd.append('name',newName);fd.append('description',newDesc);
+      if(file)fd.append('image',file);
+      const r=await fetchWithAuth(`http://127.0.0.1:8000/api/firm/firms/${f.firm_id}/edit/`,{method:'PATCH',body:fd});
+      if(r.ok) location.reload(); else alert('Edit failed');
+  };
+}
+</script>
+</body>
+</html>

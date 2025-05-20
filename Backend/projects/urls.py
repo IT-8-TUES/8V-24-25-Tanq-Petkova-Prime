@@ -1,5 +1,3 @@
-# account/urls.py   (or whatever your app is called)
-
 from django.urls import path
 from .views import (
     CreateFirm,
@@ -16,7 +14,8 @@ from .views import (
     AcceptInvite,
     RejectInvite,
     KickMember,
-    GetAllTasksForFirm
+    GetAllTasksForFirm,
+    EditFirm
 )
 
 urlpatterns = [
@@ -25,6 +24,7 @@ urlpatterns = [
     path("firms/by-user/", GetMemberFirms.as_view(), name="get-member-firms"),
     path("firms/single/", GetSingleFirm.as_view(), name="get-single-firm"),
     path("firms/members/", GetMembers.as_view(), name="get-members"),
+    path("firms/<int:firm_id>/edit/", EditFirm.as_view(), name="edit-firm"),
     path("firms/kick/", KickMember.as_view(), name="kick-member"),
 
     path("tasks/assign/", AssignTask.as_view(), name="assign-task"),
