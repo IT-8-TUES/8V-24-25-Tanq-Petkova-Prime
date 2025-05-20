@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TanqTasks Support</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --yellow: #ffd247;
+      --teal: #0d8f9a;
+      --light-gray: #f8f9fb;
+      --dark-gray: #111827;
+      --gray-line: rgba(13, 143, 154, 0.2);
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--light-gray);
+      color: var(--dark-gray);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    .line {
+      height: 2px;
+      background: var(--gray-line);
+    }
+    .header {
+      padding: 20px 30px;
+      display: flex;
+      align-items: center;
+      border-bottom: 2px solid #e5e7eb;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 24px;
+    }
+    .logo i {
+      color: #e0b633;
+    }
+    .logo span {
+      color: var(--teal);
+    }
+    nav {
+      width: 90px;
+      height: 100vh;
+      background: white;
+      position: fixed;
+      top: 0;
+      right: 0;
+      padding: 36px 0;
+      border-left: 2px solid #e5e7eb;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      z-index: 100;
+    }
+    .nav-links {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 35px;
+    }
+    .nav-link {
+      text-decoration: none;
+      color: #6b7280;
+      font-size: 22px;
+      padding: 8px 0;
+      border-left: 2px solid transparent;
+      width: 100%;
+      text-align: center;
+    }
+    .nav-link:hover {
+      color: var(--teal);
+      background: var(--light-gray);
+      border-left: 2px solid var(--yellow);
+    }
+    .account-icon {
+      background: var(--teal);
+      color: white;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 50%;
+      margin-bottom: 20px;
+    }
+    .mainArea {
+      flex: 1;
+      margin-right: 90px; 
+      padding: 40px;
+      display: flex;
+      justify-content: center;
+    }
+    .supportContent {
+      background: white;
+      padding: 40px;
+      border: 2px solid #e5e7eb;
+      position: relative;
+      box-shadow: 0 6px 16px rgba(0,0,0,.04);
+      max-width: 800px;
+      width: 100%;
+    }
+    .supportContent::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border: 2px solid var(--gray-line);
+      transform: translate(6px, 6px);
+      z-index: -1;
+    }
+    .page-title {
+      font-size: 32px;
+      margin-bottom: 24px;
+      color: var(--teal);
+      border-bottom: 2px solid var(--yellow);
+      display: inline-block;
+      padding-bottom: 6px;
+    }
+    .section-block {
+      margin-bottom: 30px;
+    }
+    .section-heading {
+      font-size: 24px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--teal);
+    }
+    .section-heading i {
+      color: #e0b633;
+    }
+    .faq {
+      margin-bottom: 20px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .faq .q {
+      font-weight: bold;
+      color: #374151;
+      margin-bottom: 6px;
+    }
+    .faq .a {
+      color: #6b7280;
+      line-height: 1.6;
+    }
+    .form_wrap {
+      margin-top: 20px;
+    }
+    .form-field {
+      margin-bottom: 20px;
+    }
+    label {
+      font-weight: 500;
+      display: block;
+      margin-bottom: 8px;
+      color: #374151;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e5e7eb;
+      font-size: 16px;
+    }
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--teal);
+    }
+    textarea {
+      min-height: 120px;
+    }
+    .btn-group {
+      margin-top: 24px;
+    }
+    .btn {
+      background: var(--teal);
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: background 0.3s, box-shadow 0.2s;
+    }
+    .btn:hover {
+      background: var(--yellow);
+      color: #111;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    footer {
+      background: white;
+      padding: 16px 0;
+      text-align: center;
+      font-size: 14px;
+      color: #6b7280;
+      margin-right: 90px;
+      border-top: 2px solid #e5e7eb;
+    }
+    @media (max-width: 768px) {
+      .mainArea {
+        padding: 30px;
+        margin-right: 70px;
+      }
+      nav {
+        width: 70px;
+      }
+      footer {
+        margin-right: 70px;
+      }
+      .page-title {
+        font-size: 28px;
+      }
+      .section-heading {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">
+      <i class="fas fa-tasks"></i>
+      <span>TanqTasks</span>
+    </div>
+  </div>
+  <div class="mainArea">
+    <div class="supportContent">
+      <h1 class="page-title">Support Center</h1>
+      <div class="section-block">
+        <h2 class="section-heading"><i class="fas fa-question-circle"></i> FAQs</h2>
+        <div class="faq">
+          <div class="q">How do I reset my password?</div>
+          <div class="a">Click “Forgot Password” on login — we’ll email you a reset link.</div>
+        </div>
+        <div class="faq">
+          <div class="q">Can I invite team members?</div>
+          <div class="a">Sure! Head to “Team Members” under settings and hit “Invite”.</div>
+        </div>
+        <div class="faq">
+          <div class="q">Is there a mobile version?</div>
+          <div class="a">Not yet — but the web version works great on your phone!</div>
+        </div>
+      </div>
+      <div class="section-block">
+        <h2 class="section-heading"><i class="fas fa-envelope"></i> Contact Support</h2>
+        <p style="color:#6b7280;">Not finding what you need? Shoot us a message and we’ll get back to you.</p>
+        <form class="form_wrap">
+          <div class="form-field">
+            <label for="name">Name</label>
+            <input type="text" id="name" required>
+          </div>
+          <div class="form-field">
+            <label for="email">Email</label>
+            <input type="email" id="email" required>
+          </div>
+          <div class="form-field">
+            <label for="subject">Subject</label>
+            <select id="subject" required>
+              <option value="">-- Choose a topic --</option>
+              <option value="account">Account</option>
+              <option value="billing">Billing</option>
+              <option value="feature">Feature Request</option>
+              <option value="bug">Bug Report</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="message">Message</label>
+            <textarea id="message" required></textarea>
+          </div>
+          <div class="btn-group">
+            <button type="submit" class="btn">
+              <i class="fas fa-paper-plane"></i> Send
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <nav>
+    <div class="nav-links">
+      <div class="account-icon"><i class="fas fa-user"></i></div>
+      <a href="#" class="nav-link"><i class="fas fa-home"></i></a>
+      <a href="#" class="nav-link"><i class="fas fa-project-diagram"></i></a>
+      <a href="#" class="nav-link"><i class="fas fa-tasks"></i></a>
+      <a href="#" class="nav-link"><i class="fas fa-info-circle"></i></a>
+      <a href="#" class="nav-link"><i class="fas fa-cog"></i></a>
+    </div>
+  </nav>
+
+  <footer>
+    © 2025 TanqTasks — all rights reserved.
+  </footer>
+</body>
+</html>
