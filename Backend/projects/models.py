@@ -7,6 +7,7 @@ class Firm(models.Model):
     name = models.CharField(max_length=100)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="owned_firms")
     description = models.TextField(null=True)
+    logo = models.ImageField(upload_to='firm_logos/', null=True, blank=True)
 
 
 class FirmMembership(models.Model):

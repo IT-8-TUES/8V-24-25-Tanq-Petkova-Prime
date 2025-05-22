@@ -38,6 +38,38 @@ class CreateFirm(APIView):
             "owner": firm.owner.username
         }, status=status.HTTP_201_CREATED)
 
+class EditFirm(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]  # Allows image upload
+
+    def patch(self, request, firm_id):
+        firm = get_object_or_404(Firm, id=firm_id)
+
+        if firm.owner != request.user:
+            return Response({"detail": "Forbidden – only the owner can edit the firm."},
+                            status=status.HTTP_403_FORBIDDEN)
+
+        name        = request.data.get("name")
+        description = request.data.get("description")
+        image       = request.FILES.get("image")
+
+        if name:
+            firm.name = name
+        if description is not None:
+            firm.description = description
+        if image:
+            firm.image = image
+
+        firm.save()
+
+        return Response({
+            "id": firm.id,
+            "name": firm.name,
+            "description": firm.description,
+            "owner": firm.owner.username,
+            "image": request.build_absolute_uri(firm.image.url) if firm.image else None,
+        }, status=status.HTTP_200_OK)
+
 class DeleteFirm(APIView):
     def delete(self, request, firm_id):
         try:
@@ -48,6 +80,7 @@ class DeleteFirm(APIView):
             return Response({"error": "Not found"}, status=404)
         
     
+
 class GetMemberFirms(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -66,9 +99,11 @@ class GetMemberFirms(APIView):
                 "firm_name": firm.name,
                 "description": firm.description,
                 "owner": firm.owner.username,
+                "owner_picture": request.build_absolute_uri(firm.owner.profile_picture.url) if firm.owner.profile_picture else None,
+                "logo": request.build_absolute_uri(firm.logo.url) if firm.logo else None,
                 "joined": membership.joined,
             })
-        return Response(data,status = 200)
+        return Response(data, status=200)
     
 class GetSingleFirm(APIView):
     permission_classes = [IsAuthenticated]
@@ -93,38 +128,30 @@ class GetMembers(APIView):
         if not firm:
             return Response({"error": "Missing 'firm' parameter"}, status=status.HTTP_400_BAD_REQUEST)
 
-        #if requesting only my firm members
         if all != "Y":
-            members = FirmMembership.objects.filter(firm__name=firm) \
-                                            .select_related("member")
-
+            members = FirmMembership.objects.filter(firm__name=firm).select_related("member")
             data = [{
                 "id": m.member.id,
                 "username": m.member.username,
                 "relation": "member",
+                "profile_picture": request.build_absolute_uri(m.member.profile_picture.url) if m.member.profile_picture else None
             } for m in members]
-
             return Response(data, status=status.HTTP_200_OK)
 
-        #RETURN FILTERED - ALL USERS
-        owner_firm = Firm.objects.filter(name=firm, owner=request.user).first()  #get firm of current user
+        owner_firm = Firm.objects.filter(name=firm, owner=request.user).first()
         if owner_firm is None:
-            return Response({"error": "You do not own this firm"},
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "You do not own this firm"}, status=status.HTTP_400_BAD_REQUEST)
 
-        #gather ids of this firms members
         firm_member_ids = set(
             FirmMembership.objects.filter(firm=owner_firm)
                                   .values_list("member_id", flat=True)
         )
 
-        #gather ids of ppl invited to the firm
         invited_ids = set(
             Invites.objects.filter(sent_firm=owner_firm.name)
                            .values_list("sent_to_id", flat=True)
         )
 
-        #build finished list, with user type - member, invited, normal (not related to the firm)
         data = []
         for user in User.objects.all():
             if user.id in firm_member_ids:
@@ -138,6 +165,7 @@ class GetMembers(APIView):
                 "id": user.id,
                 "username": user.username,
                 "relation": relation,
+                "profile_picture": request.build_absolute_uri(user.profile_picture.url) if user.profile_picture else None
             })
 
         return Response(data, status=status.HTTP_200_OK)
@@ -366,6 +394,7 @@ class GetMyInvites(APIView):
                 "invite_id": invite.id,
                 "sent_from_id": invite.sent_from.id,
                 "sent_from_username": invite.sent_from.username,
+                "sent_from_picture": request.build_absolute_uri(invite.sent_from.profile_picture.url) if invite.sent_from.profile_picture else None,
                 "sent_time": invite.sent_time,
             })
 
