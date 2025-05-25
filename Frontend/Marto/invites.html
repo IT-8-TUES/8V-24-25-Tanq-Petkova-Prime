@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TanqTasks | Invites</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- ───────────  STYLE  ─────────── -->
+<style>
+/* PALETTE */
+:root{
+  --yellow:#ffd247;           /* accent */
+  --yellow-dark:#e0b633;
+  --teal:#0d8f9a;             /* accent */
+  --blue-line:#0d8f9a40;      /* 25 % teal line */
+  --gray-900:#111827;
+  --gray-700:#374151;
+  --gray-500:#6b7280;
+  --gray-200:#e5e7eb;
+  --gray-50:#f8f9fb;
+}
+/* RESET */
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Segoe UI",system-ui,sans-serif}
+/* HEADER */
+.header{padding:18px 32px;border-bottom:2px solid var(--gray-200);display:flex;align-items:center}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:24px}
+.logo i{color:var(--yellow-dark)} .logo span{color:var(--teal)}
+.header::after{content:"";display:block;height:2px;background:var(--blue-line)}
+/* NAVBAR (same as other pages) */
+nav{
+  width:92px;height:100vh;position:fixed;right:0;top:0;background:#fff;
+  border-left:2px solid var(--gray-200);box-shadow:-6px 0 10px rgba(0,0,0,.04);z-index:90;
+  display:flex;flex-direction:column;justify-content:space-between;padding:36px 0;
+}
+.nav-links{display:flex;flex-direction:column;align-items:center;gap:38px}
+.nav-link{
+  text-decoration:none;font-size:23px;color:var(--gray-500);width:100%;display:flex;justify-content:center;
+  padding:8px 0;border-left:2px solid transparent;transition:.25s;
+}
+.nav-link:hover{color:var(--teal);background:var(--gray-50);border-left-color:var(--yellow)}
+.account-icon{width:48px;height:48px;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center}
+/* MAIN GRID */
+#grid{display:flex;flex-direction:column;gap:32px;padding:48px;margin-right:92px}
+/* INVITE CARD */
+.card{
+  position:relative;background:#fff;border:2px solid var(--gray-200);padding:32px 40px;
+  box-shadow:0 6px 16px rgba(0,0,0,.06);
+}
+.card::before{
+  content:"";position:absolute;inset:0;border:2px solid var(--blue-line);
+  transform:translate(10px,10px);z-index:-1
+}
+.card h3{font-size:18px;color:var(--gray-900);margin-bottom:6px}
+.card p{font-size:14px;color:var(--gray-700);margin-bottom:4px}
+.label{color:var(--teal);font-weight:600}
+.actions{
+  position:absolute;top:50%;right:40px;transform:translateY(-50%);
+  display:flex;gap:10px;
+}
+.btn{
+  border:none;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer
+}
+.accept{background:var(--teal);color:#fff}
+.reject{background:var(--yellow);color:var(--gray-900)}
+/* EMPTY STATE */
+.empty{color:var(--gray-500);font-size:16px;margin-top:24px;text-align:center}
+/* RESPONSIVE */
+@media(max-width:640px){
+  nav{width:70px}#grid{margin-right:70px;padding:32px}
+  .actions{right:24px}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo"><i class="fas fa-tasks"></i><span>Invites</span></div>
+</div>
+
+<!-- INVITE LIST -->
+<div id="grid"></div>
+
+<!-- SIDEBAR NAV -->
+<nav>
+  <div class="nav-links">
+    <div class="account-icon"><i class="fas fa-user"></i></div>
+    <a href="#" class="nav-link"><i class="fas fa-home"></i></a>
+    <a href="#" class="nav-link"><i class="fas fa-project-diagram"></i></a>
+    <a href="#" class="nav-link"><i class="fas fa-tasks"></i></a>
+    <a href="#" class="nav-link"><i class="fas fa-info-circle"></i></a>
+    <a href="#" class="nav-link"><i class="fas fa-cog"></i></a>
+  </div>
+</nav>
+
+<script type="module">
+    import { fetchWithAuth } from './auth.mjs';
+    const grid = document.getElementById('grid');
+    
+    /* ---------------- small helper ---------------- */
+    const readJsonSafely = async (response) => {
+      const text = await response.text();        // always consumes the body
+      return text ? JSON.parse(text) : null;     // empty → null  (no parse error)
+    };
+    /* ------------------------------------------------*/
+    
+    /* LOAD invites ------------------------------------------------------- */
+    (async () => {
+      const r = await fetchWithAuth(
+        'http://127.0.0.1:8000/api/firm/invites/my/'
+      );
+      const data = await readJsonSafely(r);
+      if (!r.ok) {
+        alert((data && (data.detail || data.error)) || 'Could not load invites');
+        return;
+      }
+      if (!data || data.length === 0) {
+        grid.innerHTML = '<p class="empty">No pending invites 🎉</p>';
+        return;
+      }
+      data.forEach(renderInvite);
+    })();
+    
+    /* RENDER invite card ----------------------------------------------- */
+    function renderInvite(inv) {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+         <h3>Invite to join <span class="label">${inv.sent_from_username}</span>'s firm</h3>
+         <p><b>Invited by:</b> <span class="label">${inv.sent_from_username}</span></p>
+         <p><b>Sent:</b> ${new Date(inv.sent_time).toLocaleString()}</p>
+         <div class="actions">
+            <button class="btn accept">Accept</button>
+            <button class="btn reject">Reject</button>
+         </div>`;
+      const [acceptBtn, rejectBtn] = card.querySelectorAll('.btn');
+      acceptBtn.onclick = () => accept(inv.invite_id, card);
+      rejectBtn.onclick = () => reject(inv.invite_id, card);
+      grid.appendChild(card);
+    }
+    
+    /* ACCEPT ------------------------------------------------------------ */
+    async function accept(id, node) {
+      const r = await fetchWithAuth(
+        'http://127.0.0.1:8000/api/firm/invites/accept/',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ invite_id: id })
+        }
+      );
+    
+      if (r.ok) {
+        node.remove();
+        if (!grid.children.length)
+          grid.innerHTML = '<p class="empty">No pending invites 🎉</p>';
+      } else {
+        const d = await readJsonSafely(r);
+        alert((d && (d.detail || d.error)) || 'Accept failed');
+      }
+    }
+    
+    /* REJECT ------------------------------------------------------------ */
+    async function reject(id, node) {
+      const r = await fetchWithAuth(
+        'http://127.0.0.1:8000/api/firm/invites/reject/',
+        {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ invite_id: id })
+        }
+      );
+    
+      if (r.ok || r.status === 204) {
+        node.remove();
+        if (!grid.children.length)
+          grid.innerHTML = '<p class="empty">No pending invites 🎉</p>';
+      } else {
+        const d = await readJsonSafely(r);
+        alert((d && (d.detail || d.error)) || 'Reject failed');
+      }
+    }
+    </script>
+</body>
+</html>    

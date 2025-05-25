@@ -1,317 +1,186 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Create Firm</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <title>TanqTasks | Create Firm</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- FIX: Prevent favicon 404 -->
+  <link rel="icon"
+        href='data:image/svg+xml;utf8,
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+          <rect width="64" height="64" rx="12" ry="12" fill="%230d8f9a"/>
+          <text x="50%" y="54%" font-size="36" text-anchor="middle" fill="white"
+                font-family="Segoe UI, sans-serif">T</text>
+        </svg>' />
+
   <style>
     :root {
-      --primary: #4361ee;
-      --primary-dark: #3a56d4;
-      --light: #f8f9fa;
-      --dark: #212529;
-      --gray: #6c757d;
-      --light-gray: #e9ecef;
-      --border-radius: 12px;
-      --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-      --transition: all 0.3s ease;
+      --yellow:#ffd247; --yellow-dark:#e0b633;
+      --teal:#0d8f9a; --blue-line:#0d8f9a40;
+      --gray-900:#111827; --gray-700:#374151;
+      --gray-500:#6b7280; --gray-200:#e5e7eb;
+      --gray-50:#f8f9fb;
     }
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    *{margin:0;padding:0;box-sizing:border-box;font-family:"Segoe UI",system-ui,sans-serif}
+    body{background:var(--gray-50);color:var(--gray-900);min-height:100vh;display:flex;flex-direction:column}
+
+    .header{padding:18px 32px;border-bottom:2px solid var(--gray-200);display:flex;align-items:center}
+    .logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:24px}
+    .logo i{color:var(--yellow-dark)}  .logo span{color:var(--teal)}
+    .header::after{content:"";display:block;height:2px;background:var(--blue-line)}
+
+    nav{
+      width:92px;height:100vh;position:fixed;right:0;top:0;background:#fff;
+      border-left:2px solid var(--gray-200);box-shadow:-6px 0 10px rgba(0,0,0,.04);
+      display:flex;flex-direction:column;justify-content:space-between;padding:36px 0;z-index:90
     }
-    body {
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      background-color: #f5f7ff;
-      color: var(--dark);
-      min-height: 100vh;
-      margin: 0;
-      padding: 0 0 0 100px;
-      display: flex;
-      justify-content: flex-start;
+    .nav-links{display:flex;flex-direction:column;align-items:center;gap:38px}
+    .nav-link{
+      text-decoration:none;font-size:23px;color:var(--gray-500);width:100%;display:flex;justify-content:center;
+      padding:8px 0;border-left:2px solid transparent;transition:.25s
     }
-    .main-content {
-      width: 100%;
-      max-width: 800px;
-      padding: 3rem 0;
+    .nav-link:hover{color:var(--teal);background:var(--gray-50);border-left-color:var(--yellow)}
+    .account-icon{width:48px;height:48px;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center}
+
+    .main-area{flex:1;display:flex;gap:48px;padding:48px;margin-right:92px}
+    .form-panel{
+      flex:1;background:#fff;border:2px solid var(--gray-200);padding:48px;position:relative;
+      box-shadow:0 6px 16px rgba(0,0,0,.06)
     }
-    .header {
-      margin-bottom: 2rem;
+    .form-panel::before{content:"";position:absolute;inset:0;border:2px solid var(--blue-line);
+                        transform:translate(10px,10px);z-index:-1}
+    .form-panel h2{
+      font-size:24px;margin-bottom:24px;color:var(--gray-900);
+      border-bottom:2px solid var(--yellow);display:inline-block;padding-bottom:4px
     }
-    .page-title {
-      font-size: 1.75rem;
-      font-weight: 700;
-      color: var(--dark);
+    .form-group{margin-bottom:24px}
+    .form-group label{display:block;margin-bottom:6px;font-size:14px;color:var(--gray-700)}
+    .form-group input,.form-group textarea{width:100%;padding:12px;border:1px solid var(--gray-200);font-size:14px}
+    .btn-create{padding:14px 28px;background:var(--teal);border:none;color:#fff;font-weight:600;cursor:pointer}
+    .msg{margin-top:18px;font-size:14px;display:none}
+    .msg.ok{color:#179c4d}.msg.err{color:#e12d39}
+
+    .stats-col{width:240px;display:flex;flex-direction:column;gap:32px;align-items:center}
+    .stat-card{width:100%;background:#fff;border:2px solid var(--gray-200);padding:24px;position:relative;
+               box-shadow:0 6px 16px rgba(0,0,0,.06)}
+    .stat-card::before{content:"";position:absolute;inset:0;border:2px solid var(--blue-line);
+                       transform:translate(6px,6px);z-index:-1}
+    .stat-title{font-size:12px;color:var(--gray-500);margin-bottom:8px}
+    .stat-value{font-size:24px;font-weight:700;color:var(--gray-700)}
+    .stat-change{font-size:12px;margin-top:10px;color:#2ecc71}
+
+    @media(max-width:920px){
+      .main-area{flex-direction:column;margin-right:92px}
+      .stats-col{flex-direction:row;width:auto;overflow-x:auto;padding-bottom:8px}
+      .stat-card{min-width:180px}
     }
-        .stats-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
-    }
-    .stat-card {
-      background: white;
-      border-radius: var(--border-radius);
-      padding: 1.5rem;
-      box-shadow: var(--box-shadow);
-    }
-    .stat-title {
-      font-size: 0.85rem;
-      color: var(--gray);
-      margin-bottom: 0.5rem;
-    }
-    .stat-value {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--dark);
-    }
-    .stat-change {
-      display: flex;
-      align-items: center;
-      font-size: 0.8rem;
-      margin-top: 0.5rem;
-    }
-    .stat-change.up {
-      color: #2ecc71;
-    }
-    .stat-change.down {
-      color: #e74c3c;
-    }
-    .card {
-      background: #fff;
-      border-radius: var(--border-radius);
-      box-shadow: var(--box-shadow);
-      padding: 2.5rem;
-      width: 100%;
-    }
-    .card-header {
-      margin-bottom: 2rem;
-    }
-    .card-title {
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: var(--dark);
-      margin-bottom: 0.5rem;
-    }
-    .card-subtitle {
-      color: var(--gray);
-      font-size: 0.9rem;
-    }
-    .form-group {
-      margin-bottom: 1.5rem;
-    }
-    .form-label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-      font-size: 0.9rem;
-    }
-    .form-control {
-      width: 100%;
-      padding: 0.875rem 1rem;
-      border: 1px solid var(--light-gray);
-      border-radius: var(--border-radius);
-      font-size: 0.95rem;
-      transition: var(--transition);
-    }
-    .form-control:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
-    }
-    textarea.form-control {
-      min-height: 120px;
-      resize: vertical;
-    }
-    .file-upload {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-    }
-    .file-upload-btn {
-      padding: 0.75rem 1.25rem;
-      background-color: var(--light-gray);
-      border-radius: var(--border-radius);
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-top: 0.5rem;
-    }
-    .file-upload-btn:hover {
-      background-color: #e2e6ea;
-    }
-    .file-name {
-      font-size: 0.8rem;
-      color: var(--gray);
-      margin-top: 0.5rem;
-      display: none;
-    }
-    .btn-primary {
-      width: 100%;
-      padding: 1rem;
-      border-radius: var(--border-radius);
-      font-weight: 600;
-      cursor: pointer;
-      transition: var(--transition);
-      border: none;
-      background-color: var(--primary);
-      color: white;
-      font-size: 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-    }
-    .btn-primary:hover {
-      background-color: var(--primary-dark);
-    }
-    .alert {
-      padding: 1rem;
-      border-radius: var(--border-radius);
-      margin-bottom: 1.5rem;
-      display: none;
-    }
-    .alert-success {
-      background-color: rgba(46, 204, 113, 0.1);
-      color: #27ae60;
-      border: 1px solid rgba(46, 204, 113, 0.2);
-    }
-    .alert-error {
-      background-color: rgba(231, 76, 60, 0.1);
-      color: #e74c3c;
-      border: 1px solid rgba(231, 76, 60, 0.2);
-    }
-    @media (max-width: 768px) {
-      body {
-        padding-left: 20px;
-        padding-right: 20px;
-      }
-      .main-content {
-        padding: 1.5rem 0;
-      }
-      .stats-container {
-        grid-template-columns: 1fr;
-      }
-      .card {
-        padding: 1.5rem;
-      }
+    @media(max-width:640px){
+      nav{width:70px}.main-area{padding:32px;margin-right:70px}
     }
   </style>
 </head>
 <body>
-  <main class="main-content">
-    <div class="header">
-      <h1 class="page-title">Create New Firm</h1>
-    </div>
-    <div class="stats-container">
-      <div class="stat-card">
-        <div class="stat-title">Total Firms</div>
-        <div class="stat-value">24</div>
-        <div class="stat-change up">
-          <i class="fas fa-arrow-up"></i>
-          12% from last month
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-title">Active Projects</div>
-        <div class="stat-value">156</div>
-        <div class="stat-change down">
-          <i class="fas fa-arrow-down"></i>
-          5% from last quarter
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-title">Team Members</div>
-        <div class="stat-value">84</div>
-        <div class="stat-change up">
-          <i class="fas fa-arrow-up"></i>
-          8 new hires
-        </div>
-      </div>
-    </div>
-    <div class="form-container">
-      <div id="msgOk" class="alert alert-success">Firm created successfully!</div>
-      <div id="msgErr" class="alert alert-error"></div>
-      
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">Firm Information</h2>
-          <p class="card-subtitle">Enter details about your firm</p>
-        </div>
-        <div class="form-group">
-          <label for="name" class="form-label">Firm Name *</label>
-          <input id="name" type="text" class="form-control" placeholder="e.g. Acme Inc." />
-        </div>
-        <div class="form-group">
-          <label for="desc" class="form-label">Description</label>
-          <textarea id="desc" class="form-control" rows="4" placeholder="Tell us about your firm..."></textarea>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Logo</label>
-          <div class="file-upload">
-            <input type="file" id="logo" accept="image/*" style="display: none;">
-            <label for="logo" class="file-upload-btn">
-              <i class="fas fa-upload"></i>
-              Choose File
-            </label>
-            <div class="file-name">No file chosen</div>
-          </div>
-        </div>
-        <button id="createBtn" class="btn-primary">
-          <i class="fas fa-plus"></i>
-          Create Firm
-        </button>
-      </div>
-    </div>
-  </main>
 
-  <script type="module">
-    import { fetchWithAuth } from './auth.mjs';
-    const createBtn = document.getElementById('createBtn');
-    const msgOk  = document.getElementById('msgOk');
-    const msgErr = document.getElementById('msgErr');
-    const logoInput = document.getElementById('logo');
-    const fileNameDisplay = document.querySelector('.file-name');
-    logoInput.addEventListener('change', function() {
-      if (this.files.length > 0) {
-        fileNameDisplay.textContent = this.files[0].name;
-        fileNameDisplay.style.display = 'block';
-      } else {
-        fileNameDisplay.style.display = 'none';
-      }
-    });
-    createBtn.addEventListener('click', async () => {
-      msgOk.style.display = msgErr.style.display = 'none';
-      const name = document.getElementById('name').value.trim();
-      const desc = document.getElementById('desc').value.trim();
-      if (!name) {
-        msgErr.textContent = 'Firm name is required';
-        msgErr.style.display = 'block';
-        return;
-      }
-      const url = `http://127.0.0.1:8000/api/firm/firms/create/?name=${encodeURIComponent(name)}&description=${encodeURIComponent(desc)}`;
-      try {
-        const res  = await fetchWithAuth(url, { method: 'POST' });
-        const data = await res.json();
-        if (!res.ok) {
-          msgErr.textContent = data.detail || data.error || 'Request failed';
-          msgErr.style.display = 'block';
-          return;
-        }
-        msgOk.style.display = 'block';
-        document.getElementById('name').value = '';
-        document.getElementById('desc').value = '';
-        logoInput.value = '';
-        fileNameDisplay.style.display = 'none';
-        msgOk.scrollIntoView({ behavior: 'smooth' });
-      } catch {
-        msgErr.textContent = 'Network error - please try again';
-        msgErr.style.display = 'block';
-      }
-    });
-  </script>
+<!-- HEADER -->
+<div class="header">
+  <div class="logo"><i class="fas fa-tasks"></i><span>Create Firm</span></div>
+</div>
+
+<!-- MAIN -->
+<div class="main-area">
+  <div class="form-panel">
+    <h2>Create Firm</h2>
+    <div class="form-group">
+      <label for="name">Firm Name *</label>
+      <input id="name" placeholder="Acme Inc.">
+    </div>
+    <div class="form-group">
+      <label for="desc">Description</label>
+      <textarea id="desc" rows="4" placeholder="Describe your firm…"></textarea>
+    </div>
+    <button class="btn-create" id="createBtn">Create Firm</button>
+    <p class="msg ok"  id="msgOk">Firm created ✔</p>
+    <p class="msg err" id="msgErr"></p>
+  </div>
+
+  <div class="stats-col" id="statsCol">
+    <div class="stat-card">
+      <div class="stat-title">Total Firms</div>
+      <div class="stat-value" id="statFirms">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-title">My Projects</div>
+      <div class="stat-value" id="statProjects">—</div>
+    </div>
+  </div>
+</div>
+
+<!-- SIDEBAR NAV -->
+<nav>
+  <div class="nav-links">
+    <div class="account-icon"><i class="fas fa-user"></i></div>
+    <a href="#" class="nav-link"><i class="fas fa-home"></i></a>
+    <a href="#" class="nav-link"><i class="fas fa-project-diagram"></i></a>
+    <a href="#" class="nav-link"><i class="fas fa-tasks"></i></a>
+    <a href="#" class="nav-link"><i class="fas fa-info-circle"></i></a>
+    <a href="#" class="nav-link"><i class="fas fa-cog"></i></a>
+  </div>
+</nav>
+
+<!-- SCRIPT -->
+<script type="module">
+import { fetchWithAuth } from "../Marto/auth.mjs";
+
+const $ = id => document.getElementById(id);
+const msgOk  = $('msgOk');
+const msgErr = $('msgErr');
+
+$('createBtn').addEventListener('click', async ()=>{
+  msgOk.style.display = msgErr.style.display = 'none';
+  const name = $('name').value.trim();
+  const desc = $('desc').value.trim();
+  if(!name){
+    msgErr.textContent = 'Please enter a firm name';
+    msgErr.style.display = 'block';
+    return;
+  }
+
+  const url = `http://127.0.0.1:8000/api/firm/firms/create/?name=${encodeURIComponent(name)}&description=${encodeURIComponent(desc)}`;
+
+  try {
+    const r = await fetchWithAuth(url, { method: 'POST' });
+    const res = await r.json();
+    if (!r.ok) {
+      msgErr.textContent = res.error || res.detail || 'Server error';
+      msgErr.style.display = 'block';
+      return;
+    }
+    msgOk.style.display = 'block';
+    $('name').value = ''; $('desc').value = '';
+    updateStats();
+  } catch (e) {
+    msgErr.textContent = 'Network error – try again';
+    msgErr.style.display = 'block';
+  }
+});
+
+async function updateStats(){
+  const username = localStorage.getItem('username');
+  if(!username) return;
+
+  const rf = await fetchWithAuth(`http://127.0.0.1:8000/api/firm/firms/by-user/?user=${encodeURIComponent(username)}`);
+  const firms = await rf.json();
+  if(rf.ok) $('statFirms').textContent = firms.length;
+
+  const rt = await fetchWithAuth(`http://127.0.0.1:8000/api/firm/tasks/by-name/`);
+  const tasks = await rt.json();
+  if(rt.ok) $('statProjects').textContent = tasks.length;
+}
+
+updateStats();
+</script>
 </body>
 </html>

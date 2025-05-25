@@ -148,7 +148,7 @@ class GetMembers(APIView):
         )
 
         invited_ids = set(
-            Invites.objects.filter(sent_firm=owner_firm.name)
+            Invites.objects.filter(firm=owner_firm)
                            .values_list("sent_to_id", flat=True)
         )
 
@@ -366,10 +366,14 @@ class SendInvite(APIView):
         if not recipient:
             return Response({"detail": "User not found"}, status=404)
 
+        firm = Firm.objects.filter(owner=request.user).first()
+        if not firm:
+            return Response({"detail": "Firm not found"}, status=404)
+
         invite = Invites.objects.create(
             sent_to=recipient,
             sent_from=request.user,
-            sent_firm = Firm.objects.filter(owner=request.user).values_list("name", flat=True).first()
+            firm=firm
         )
 
         return Response(
@@ -414,7 +418,7 @@ class AcceptInvite(APIView):
             Invites, pk=invite_id, sent_to=request.user
         )
 
-        firm = Firm.objects.filter(name=invite.sent_firm).first()
+        firm = invite.firm
         if not firm:
             return Response({"detail": "Firm not found"}, status=404)
 

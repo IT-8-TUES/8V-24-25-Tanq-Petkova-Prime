@@ -1,0 +1,242 @@
+<!-- tasks_redesigned.html  ────────────────────────────────────────────-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TanqTasks | My Tasks</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- ───────────  STYLE  (copied from “My Firms” page)  ─────────── -->
+<style>
+/* PALETTE -------------------------------------------------------------- */
+:root{
+  --yellow:#ffd247; --yellow-dark:#e0b633; --teal:#0d8f9a;
+  --blue-line:#0d8f9a40; --gray-900:#111827; --gray-700:#374151;
+  --gray-500:#6b7280;   --gray-200:#e5e7eb;  --gray-50:#f8f9fb;
+}
+/* RESET ----------------------------------------------------------------*/
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Segoe UI",system-ui,sans-serif}
+
+/* HEADER (same thin line under) ---------------------------------------*/
+.header{padding:18px 32px;border-bottom:2px solid var(--gray-200);
+        display:flex;align-items:center;background:var(--gray-50);}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:24px}
+.logo i{color:var(--yellow-dark)} .logo span{color:var(--teal)}
+.header::after{content:"";display:block;height:2px;background:var(--blue-line)}
+
+/* RIGHT-SIDEBAR NAV (1 : 1 copy) --------------------------------------*/
+nav{
+  width:92px;height:100vh;position:fixed;right:0;top:0;background:#fff;
+  border-left:2px solid var(--gray-200);box-shadow:-6px 0 10px rgba(0,0,0,.04);
+  display:flex;flex-direction:column;justify-content:space-between;padding:36px 0;z-index:1200;
+}
+.nav-links{display:flex;flex-direction:column;align-items:center;gap:38px}
+.nav-link{
+  text-decoration:none;font-size:23px;color:var(--gray-500);width:100%;display:flex;justify-content:center;
+  padding:8px 0;border-left:2px solid transparent;transition:.25s;
+}
+.nav-link:hover{color:var(--teal);background:var(--gray-50);border-left-color:var(--yellow)}
+.account-icon{width:48px;height:48px;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center}
+
+/* GRID -----------------------------------------------------------------*/
+#grid{display:flex;flex-wrap:wrap;gap:32px;padding:48px;margin-right:92px}
+.card{
+  width:calc(33.333% - 32px);min-width:260px;background:#fff;border:2px solid var(--gray-200);
+  padding:68px 32px 32px;position:relative;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.06);
+}
+.card::before{content:"";position:absolute;inset:0;border:2px solid var(--blue-line);
+              transform:translate(10px,10px);z-index:-1}
+
+/* task-name & actions (kept .tabL / .tabR classes so JS still works) ---*/
+.tabL,.tabR{
+  position:absolute;top:-18px;height:32px;line-height:28px;
+  background:#fff;border:2px solid var(--gray-200);font-size:14px;padding:0 14px;
+}
+.tabL{left:32px;font-weight:600;color:var(--gray-900)}
+.tabR{right:32px;display:flex;gap:14px;color:var(--teal);cursor:pointer}
+.tabL::before,.tabR::before{content:"";position:absolute;inset:0;border:2px solid var(--blue-line);
+                            transform:translate(6px,6px);z-index:-1}
+.tabR span{user-select:none}
+
+/* card content ---------------------------------------------------------*/
+.card p{margin:0 0 10px;font-size:14px;color:var(--gray-700)}
+.attach a{display:block;font-size:13px;color:var(--teal);text-decoration:none;margin-bottom:6px}
+.attach a:hover{text-decoration:underline}
+
+/* OVERLAY & MODAL (centre) --------------------------------------------*/
+#overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;
+  justify-content:center;padding:40px 12px;z-index:1100;
+}
+#overlay.show{display:flex}
+.modal{
+  background:#fff;border:2px solid var(--gray-200);max-width:480px;width:92%;max-height:80vh;
+  overflow:auto;position:relative;padding:26px;box-shadow:0 6px 18px rgba(0,0,0,.09);
+}
+.modal::before{content:"";position:absolute;inset:0;border:2px solid var(--blue-line);
+               transform:translate(10px,10px);z-index:-1}
+.modal h3{margin-top:0;font-size:18px}
+.close{position:absolute;top:6px;right:10px;font-size:22px;color:var(--gray-500);cursor:pointer}
+
+/* form inputs inside modal ------------------------------------------- */
+.modal input,.modal textarea,.modal select{
+  width:100%;padding:10px 12px;border:1px solid var(--gray-200);font-size:14px;margin-bottom:14px}
+.modal button{padding:10px 16px;border:none;background:var(--teal);color:#fff;font-size:14px;cursor:pointer}
+.modal button:hover{background:#0b7d86}
+
+/* RESPONSIVE -----------------------------------------------------------*/
+@media(max-width:920px){.card{width:calc(50% - 32px)}}
+@media(max-width:640px){
+  nav{width:70px}#grid{margin-right:70px}.card{width:100%}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo"><i class="fas fa-tasks"></i><span>My tasks</span></div>
+</div>
+
+<h1 style="margin:32px 0 0 48px;color:var(--gray-900);font-size:28px;">My Tasks</h1>
+
+<!-- TASK GRID -->
+<div id="grid"></div>
+
+<!-- SIDEBAR NAV -->
+<nav>
+  <div class="nav-links">
+    <div class="account-icon"><i class="fas fa-user"></i></div>
+    <a href="#" class="nav-link"><i class="fas fa-home"></i></a>
+    <a href="#" class="nav-link"><i class="fas fa-project-diagram"></i></a>
+    <a href="#" class="nav-link"><i class="fas fa-tasks"></i></a>
+    <a href="#" class="nav-link"><i class="fas fa-info-circle"></i></a>
+    <a href="#" class="nav-link"><i class="fas fa-cog"></i></a>
+  </div>
+</nav>
+
+<!-- POPUP CONTAINER -->
+<div id="overlay"></div>
+
+<!-- ORIGINAL JS (unchanged) ------------------------------------------->
+<script type="module">
+import { fetchWithAuth } from './auth.mjs';
+
+const grid    = document.getElementById('grid');
+const overlay = document.getElementById('overlay');
+let loaded = false;   // infinite-scroll stub
+
+/* helper */
+const show = html => {overlay.innerHTML=html; overlay.classList.add('show')}
+const close= ()    => overlay.classList.remove('show');
+window.closeOverlay = close;      // allow inline onclick
+
+/* ========= load tasks ========== */
+async function loadTasks(){
+  if (loaded) return;
+
+  const r  = await fetchWithAuth('http://127.0.0.1:8000/api/firm/tasks/by-name/');   // same URL
+  const data = await r.json();
+  if (!r.ok){ alert(data.detail || data.error || 'Could not load tasks'); return; }
+
+  if (data.length === 0){
+    grid.innerHTML = '<p style="color:#666">No tasks yet.</p>';
+    loaded = true; return;
+  }
+  data.forEach(renderCard);
+  loaded = true;
+}
+
+function renderCard(t){
+  const card = document.createElement('div');
+  card.className = 'card';
+
+  /* --- add firm line ----------------------------------------------- */
+  const firmLine = `<p><strong>Firm:</strong> ${t.firm}</p>`;
+  /* ------------------------------------------------------------------ */
+
+  card.innerHTML = `
+    <div class="tabL">${t.task_name}</div>
+    <div class="tabR"><span>Edit</span><span>Delete</span></div>
+
+    ${firmLine}
+    <p><strong>Status:</strong> ${t.status}</p>
+    <p>${t.description}</p>
+    ${t.contents ? `<p><strong>Contents:</strong> ${t.contents}</p>` : ''}
+
+    <div class="attach">
+       ${t.attachment ? `<a href="#" data-url="${t.attachment}">📎 attachment</a>` : ''}
+    </div>
+  `;
+
+  /* attachment preview */
+  const a = card.querySelector('a[data-url]');
+  if(a){
+    a.onclick = e=>{
+      e.preventDefault();
+      show(`<div class="modal">
+              <span class="close" onclick="closeOverlay()">&times;</span>
+              <h3>Attachment</h3>
+              <p><a href="${a.dataset.url}" target="_blank">Open in new tab ↗</a></p>
+            </div>`);
+    };
+  }
+
+  /* edit + delete */
+  const [editBtn, delBtn] = card.querySelector('.tabR').children;
+  editBtn.onclick = () => openEdit(t);
+  delBtn.onclick  = () => remove(t.task_id, card);
+
+  grid.appendChild(card);
+}
+
+/* ========= edit modal ========== */
+function openEdit(task){
+  show(`
+   <div class="modal">
+     <span class="close" onclick="closeOverlay()">&times;</span>
+     <h3>Edit task</h3>
+     <input id="en" value="${task.task_name}">
+     <textarea id="ed" rows="4">${task.description}</textarea>
+     <select id="es">
+       <option value="unstarted">unstarted</option>
+       <option value="pending">pending</option>
+       <option value="complete">complete</option>
+     </select>
+     <input id="ef" type="file">
+     <button id="save">Save</button>
+   </div>`);
+  document.getElementById('es').value = task.status;
+  document.getElementById('save').onclick = async ()=>{
+      const fd=new FormData();
+      fd.append('name',       document.getElementById('en').value.trim());
+      fd.append('description',document.getElementById('ed').value.trim());
+      fd.append('status',     document.getElementById('es').value);
+      const f=document.getElementById('ef').files[0];
+      if(f) fd.append('attachment',f);
+
+      const r = await fetchWithAuth(`http://127.0.0.1:8000/api/firm/tasks/${task.task_id}/edit/`,
+                                    {method:'PATCH',body:fd});
+      if(r.ok){ location.reload(); }
+      else{ const d=await r.json(); alert(d.detail||d.error||'edit failed'); }
+  };
+}
+
+/* ========= delete ========== */
+async function remove(id, node){
+  if(!confirm('Delete this task?')) return;
+  const r = await fetchWithAuth(`http://127.0.0.1:8000/api/firm/tasks/${id}/delete/`,{method:'DELETE'});
+  if(r.status===204){ node.remove(); }
+  else{ const d=await r.json(); alert(d.detail||d.error||'delete failed'); }
+}
+
+/* ========= infinite scroll hook (stub) ========= */
+window.addEventListener('scroll',()=>{
+  if(window.innerHeight+window.scrollY>=document.body.scrollHeight-120) loadTasks();
+});
+loadTasks();
+</script>
+</body>
+</html>
