@@ -1,119 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>TanqTasks | Invites</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <title>TanqTasks | Invites</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-<!-- ───────────  STYLE  ─────────── -->
-<style>
-/* PALETTE */
-:root{
-  --yellow:#ffd247;           /* accent */
-  --yellow-dark:#e0b633;
-  --teal:#0d8f9a;             /* accent */
-  --blue-line:#0d8f9a40;      /* 25 % teal line */
-  --gray-900:#111827;
-  --gray-700:#374151;
-  --gray-500:#6b7280;
-  --gray-200:#e5e7eb;
-  --gray-50:#f8f9fb;
-}
-/* RESET */
-*{margin:0;padding:0;box-sizing:border-box;font-family:"Segoe UI",system-ui,sans-serif}
-/* HEADER */
-.header{padding:18px 32px;border-bottom:2px solid var(--gray-200);display:flex;align-items:center}
-.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:24px}
-.logo i{color:var(--yellow-dark)} .logo span{color:var(--teal)}
-.header::after{content:"";display:block;height:2px;background:var(--blue-line)}
-/* NAVBAR (same as other pages) */
-nav{
-  width:92px;height:100vh;position:fixed;right:0;top:0;background:#fff;
-  border-left:2px solid var(--gray-200);box-shadow:-6px 0 10px rgba(0,0,0,.04);z-index:90;
-  display:flex;flex-direction:column;justify-content:space-between;padding:36px 0;
-}
-.nav-links{display:flex;flex-direction:column;align-items:center;gap:38px}
-.nav-link{
-  text-decoration:none;font-size:23px;color:var(--gray-500);width:100%;display:flex;justify-content:center;
-  padding:8px 0;border-left:2px solid transparent;transition:.25s;
-}
-.nav-link:hover{color:var(--teal);background:var(--gray-50);border-left-color:var(--yellow)}
-.account-icon{width:48px;height:48px;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center}
-/* MAIN GRID */
-#grid{display:flex;flex-direction:column;gap:32px;padding:48px;margin-right:92px}
-/* INVITE CARD */
-.card{
-  position:relative;background:#fff;border:2px solid var(--gray-200);padding:32px 40px;
-  box-shadow:0 6px 16px rgba(0,0,0,.06);
-}
-.card::before{
-  content:"";position:absolute;inset:0;border:2px solid var(--blue-line);
-  transform:translate(10px,10px);z-index:-1
-}
-.card h3{font-size:18px;color:var(--gray-900);margin-bottom:6px}
-.card p{font-size:14px;color:var(--gray-700);margin-bottom:4px}
-.label{color:var(--teal);font-weight:600}
-.actions{
-  position:absolute;top:50%;right:40px;transform:translateY(-50%);
-  display:flex;gap:10px;
-}
-.btn{
-  border:none;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer
-}
-.accept{background:var(--teal);color:#fff}
-.reject{background:var(--yellow);color:var(--gray-900)}
-/* EMPTY STATE */
-.empty{color:var(--gray-500);font-size:16px;margin-top:24px;text-align:center}
-/* RESPONSIVE */
-@media(max-width:640px){
-  nav{width:70px}#grid{margin-right:70px;padding:32px}
-  .actions{right:24px}
-}
-</style>
+  <style>
+    /*──────────────── PALETTE / GLOBAL ────────────────*/
+    :root{
+      --yellow:#ffd247;      --yellow-dark:#e0b633;   --teal:#0d8f9a;
+      --blue-line:#0d8f9a40; --gray-900:#111827;      --gray-700:#374151;
+      --gray-500:#6b7280;    --gray-200:#e5e7eb;      --gray-50:#f8f9fb;
+
+      --collapsed:5.75rem;   --expanded:15rem;
+      --gap:.1875rem;           /* 3px min */
+    }
+
+    /* RESET */
+    *{margin:0;padding:0;box-sizing:border-box;font-family:"Segoe UI",system-ui,sans-serif}
+    body{background:var(--gray-50);color:var(--gray-900);min-height:100vh;display:flex;flex-direction:column}
+
+    /* HEADER */
+    .header{padding:18px 32px;border-bottom:2px solid var(--gray-200);display:flex;align-items:center}
+    .logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:24px}
+    .logo i{color:var(--yellow-dark)} .logo span{color:var(--teal)}
+    .header::after{content:"";display:block;height:2px;background:var(--blue-line)}
+
+    /*──────────────── SIDEBAR ────────────────*/
+    #pageShade {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.3);
+      backdrop-filter: blur(2px);
+      opacity: 0; pointer-events: none;
+      transition: .3s;
+      z-index: 1100;
+    }
+    body.nav-open #pageShade {
+      opacity: 1; pointer-events: auto;
+    }
+    nav#sidebar{
+      width:var(--collapsed); height:100vh;
+      position:fixed; top:0; right:0; z-index:1200;
+      background:#fff;
+      border-left:.125rem solid var(--gray-200);
+      box-shadow:-.375rem 0 .625rem rgba(0,0,0,.04);
+      display:flex;flex-direction:column;padding-top:1.125rem;
+      transition:.25s;
+    }
+    body.nav-open nav#sidebar{width:var(--expanded)}
+
+    #navToggle{
+      background:none;border:none;
+      color:var(--gray-500);font-size:1.375rem;
+      margin-bottom:2rem;padding:0 1.5rem;
+      cursor:pointer;transition:.25s;
+    }
+    body.nav-open #navToggle{transform:rotate(90deg)}
+
+    .nav-links{display:flex;flex-direction:column;gap:1rem}
+    .nav-link{
+      display:flex;align-items:center;gap:.75rem;
+      padding:.75rem 1.5rem;
+      color:var(--gray-500);text-decoration:none;
+      position:relative;transition:.25s;
+    }
+    .nav-link .label{
+      opacity:0;transform:translateX(.5rem);
+      transition:.25s;white-space:nowrap;
+    }
+    body.nav-open .nav-link .label{
+      opacity:1;transform:none;
+    }
+    body:not(.nav-open) .nav-link .label{display:none}
+
+    .nav-link:hover{color:var(--teal);background:var(--gray-50)}
+    .nav-link::before{
+      content:"";position:absolute;left:0;top:0;
+      width:.25rem;background:transparent;transition:.25s;
+    }
+    .nav-link:hover::before{background:var(--yellow);height:100%}
+
+    .nav-link.active{color:var(--teal);background:transparent}
+    .nav-link.active::before{
+      background:var(--yellow);
+      width:.25rem;height:1.5rem;
+      top:50%;transform:translateY(-50%);
+    }
+
+    .nav-link i{
+      font-size:1.25rem;width:1.5rem;text-align:center;color:inherit;
+    }
+    body:not(.nav-open) .nav-link{
+      justify-content:center;padding:.75rem 0;gap:0;
+    }
+
+    /*──────────────── INVITES GRID ────────────────*/
+    #grid{
+      display:flex;flex-direction:column;gap:32px;
+      padding:48px;
+      margin-right:var(--collapsed);
+      transition:.25s;
+    }
+    .card{
+      position:relative;
+      background:#fff;border:2px solid var(--gray-200);
+      padding:32px 40px;
+      box-shadow:0 6px 16px rgba(0,0,0,.06);
+    }
+    .card::before{
+      content:"";position:absolute;inset:0;
+      border:2px solid var(--blue-line);
+      transform:translate(10px,10px);z-index:-1;
+    }
+    .card h3{font-size:18px;color:var(--gray-900);margin-bottom:6px}
+    .card p{font-size:14px;color:var(--gray-700);margin-bottom:4px}
+    .label{color:var(--teal);font-weight:600}
+    .actions{
+      position:absolute;top:50%;right:40px;
+      transform:translateY(-50%);
+      display:flex;gap:10px;
+    }
+    .btn{border:none;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer}
+    .accept{background:var(--teal);color:#fff}
+    .reject{background:var(--yellow);color:var(--gray-900)}
+    .empty{color:var(--gray-500);font-size:16px;margin-top:24px;text-align:center}
+
+    /* RESPONSIVE */
+    @media(max-width:640px){
+      nav#sidebar{width:70px}
+      #grid{margin-right:70px;padding:32px}
+      .actions{right:24px}
+    }
+  </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<div class="header">
-  <div class="logo"><i class="fas fa-tasks"></i><span>Invites</span></div>
-</div>
-
-<!-- INVITE LIST -->
-<div id="grid"></div>
-
-<!-- SIDEBAR NAV -->
-<nav>
-  <div class="nav-links">
-    <div class="account-icon"><i class="fas fa-user"></i></div>
-    <a href="#" class="nav-link"><i class="fas fa-home"></i></a>
-    <a href="#" class="nav-link"><i class="fas fa-project-diagram"></i></a>
-    <a href="#" class="nav-link"><i class="fas fa-tasks"></i></a>
-    <a href="#" class="nav-link"><i class="fas fa-info-circle"></i></a>
-    <a href="#" class="nav-link"><i class="fas fa-cog"></i></a>
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo"><i class="fas fa-tasks"></i><span>Invites</span></div>
   </div>
-</nav>
 
-<script type="module">
+  <!-- INVITE LIST -->
+  <div id="grid"></div>
+
+  <!-- SIDEBAR & OVERLAY -->
+  <div id="pageShade"></div>
+  <nav id="sidebar">
+    <button id="navToggle" aria-label="toggle navigation"><i class="fas fa-bars"></i></button>
+    <div class="nav-links">
+      <a href="../Misho/logedinoage.html" class="nav-link"><i class="fas fa-home"></i><span class="label">Home</span></a>
+      <a href="../ivan/displaytasks.html" class="nav-link"><i class="fas fa-tasks"></i><span class="label">My Tasks</span></a>
+      <a href="../Misho/invites.html" class="nav-link active"><i class="fas fa-envelope-open-text"></i><span class="label">Invites</span></a>
+      <a href="../Marto/projmanage.html" class="nav-link"><i class="fas fa-project-diagram"></i><span class="label">Projects</span></a>
+      <a href="../Misho/firm.html" class="nav-link"><i class="fas fa-building"></i><span class="label">Create Firm</span></a>
+      <a href="../Misho/support.html" class="nav-link"><i class="fas fa-life-ring"></i><span class="label">Support</span></a>
+    </div>
+  </nav>
+  <div id="overlay"></div>
+
+  <script type="module">
     import { fetchWithAuth } from './auth.mjs';
     const grid = document.getElementById('grid');
-    
-    /* ---------------- small helper ---------------- */
-    const readJsonSafely = async (response) => {
-      const text = await response.text();        // always consumes the body
-      return text ? JSON.parse(text) : null;     // empty → null  (no parse error)
+
+    /* helper to parse JSON or empty */
+    const readJsonSafely = async res => {
+      const t = await res.text();
+      return t ? JSON.parse(t) : null;
     };
-    /* ------------------------------------------------*/
-    
-    /* LOAD invites ------------------------------------------------------- */
+
+    /* LOAD invites */
     (async () => {
-      const r = await fetchWithAuth(
-        'http://127.0.0.1:8000/api/firm/invites/my/'
-      );
+      const r = await fetchWithAuth('http://127.0.0.1:8000/api/firm/invites/my/');
       const data = await readJsonSafely(r);
       if (!r.ok) {
-        alert((data && (data.detail || data.error)) || 'Could not load invites');
+        alert((data && (data.detail||data.error)) || 'Could not load invites');
         return;
       }
       if (!data || data.length === 0) {
@@ -122,66 +184,60 @@ nav{
       }
       data.forEach(renderInvite);
     })();
-    
-    /* RENDER invite card ----------------------------------------------- */
+
+    /* RENDER invite */
     function renderInvite(inv) {
-      const card = document.createElement('div');
+      const card = document.createElement('div'), [h,t,s] = ['h3','p','span'];
       card.className = 'card';
       card.innerHTML = `
-         <h3>Invite to join <span class="label">${inv.sent_from_username}</span>'s firm</h3>
-         <p><b>Invited by:</b> <span class="label">${inv.sent_from_username}</span></p>
-         <p><b>Sent:</b> ${new Date(inv.sent_time).toLocaleString()}</p>
-         <div class="actions">
-            <button class="btn accept">Accept</button>
-            <button class="btn reject">Reject</button>
-         </div>`;
+        <h3>Invite to join <span class="label">${inv.sent_from_username}</span>'s firm</h3>
+        <p><b>Invited by:</b> <span class="label">${inv.sent_from_username}</span></p>
+        <p><b>Sent:</b> ${new Date(inv.sent_time).toLocaleString()}</p>
+        <div class="actions">
+          <button class="btn accept">Accept</button>
+          <button class="btn reject">Reject</button>
+        </div>`;
       const [acceptBtn, rejectBtn] = card.querySelectorAll('.btn');
-      acceptBtn.onclick = () => accept(inv.invite_id, card);
-      rejectBtn.onclick = () => reject(inv.invite_id, card);
+      acceptBtn.onclick = () => handleAccept(inv.invite_id, card);
+      rejectBtn.onclick = () => handleReject(inv.invite_id, card);
       grid.appendChild(card);
     }
-    
-    /* ACCEPT ------------------------------------------------------------ */
-    async function accept(id, node) {
+
+    async function handleAccept(id,node) {
       const r = await fetchWithAuth(
         'http://127.0.0.1:8000/api/firm/invites/accept/',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ invite_id: id })
-        }
+        { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({invite_id:id}) }
       );
-    
       if (r.ok) {
         node.remove();
-        if (!grid.children.length)
-          grid.innerHTML = '<p class="empty">No pending invites 🎉</p>';
+        if (!grid.children.length) grid.innerHTML = '<p class="empty">No pending invites 🎉</p>';
       } else {
         const d = await readJsonSafely(r);
-        alert((d && (d.detail || d.error)) || 'Accept failed');
+        alert((d&&(d.detail||d.error))||'Accept failed');
       }
     }
-    
-    /* REJECT ------------------------------------------------------------ */
-    async function reject(id, node) {
+
+    async function handleReject(id,node) {
       const r = await fetchWithAuth(
         'http://127.0.0.1:8000/api/firm/invites/reject/',
-        {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ invite_id: id })
-        }
+        { method:'DELETE', headers:{'Content-Type':'application/json'}, body:JSON.stringify({invite_id:id}) }
       );
-    
-      if (r.ok || r.status === 204) {
+      if (r.ok||r.status===204) {
         node.remove();
-        if (!grid.children.length)
-          grid.innerHTML = '<p class="empty">No pending invites 🎉</p>';
+        if (!grid.children.length) grid.innerHTML = '<p class="empty">No pending invites 🎉</p>';
       } else {
         const d = await readJsonSafely(r);
-        alert((d && (d.detail || d.error)) || 'Reject failed');
+        alert((d&&(d.detail||d.error))||'Reject failed');
       }
     }
-    </script>
+
+    /* SIDEBAR TOGGLE */
+    document.getElementById("navToggle").onclick = () => {
+      document.body.classList.toggle("nav-open");
+    };
+    document.getElementById("pageShade").onclick = () => {
+      document.body.classList.remove("nav-open");
+    };
+  </script>
 </body>
-</html>    
+</html>

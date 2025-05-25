@@ -58,7 +58,7 @@ class EditFirm(APIView):
         if description is not None:
             firm.description = description
         if image:
-            firm.image = image
+            firm.logo = image
 
         firm.save()
 
@@ -67,7 +67,7 @@ class EditFirm(APIView):
             "name": firm.name,
             "description": firm.description,
             "owner": firm.owner.username,
-            "image": request.build_absolute_uri(firm.image.url) if firm.image else None,
+            "image": request.build_absolute_uri(firm.logo.url) if firm.logo else None,
         }, status=status.HTTP_200_OK)
 
 class DeleteFirm(APIView):

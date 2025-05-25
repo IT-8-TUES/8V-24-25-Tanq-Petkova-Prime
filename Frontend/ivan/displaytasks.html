@@ -1,242 +1,291 @@
-<!-- tasks_redesigned.html  ────────────────────────────────────────────-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>TanqTasks | My Tasks</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <title>TanqTasks&nbsp;|&nbsp;My Tasks</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-<!-- ───────────  STYLE  (copied from “My Firms” page)  ─────────── -->
-<style>
-/* PALETTE -------------------------------------------------------------- */
-:root{
-  --yellow:#ffd247; --yellow-dark:#e0b633; --teal:#0d8f9a;
-  --blue-line:#0d8f9a40; --gray-900:#111827; --gray-700:#374151;
-  --gray-500:#6b7280;   --gray-200:#e5e7eb;  --gray-50:#f8f9fb;
-}
-/* RESET ----------------------------------------------------------------*/
-*{margin:0;padding:0;box-sizing:border-box;font-family:"Segoe UI",system-ui,sans-serif}
+  <style>
+  :root{
+    --yellow:#ffd247;      --yellow-dark:#e0b633;   --teal:#0d8f9a;
+    --blue-line:#0d8f9a40; --gray-900:#111827;      --gray-700:#374151;
+    --gray-500:#6b7280;    --gray-200:#e5e7eb;      --gray-50:#f8f9fb;
 
-/* HEADER (same thin line under) ---------------------------------------*/
-.header{padding:18px 32px;border-bottom:2px solid var(--gray-200);
-        display:flex;align-items:center;background:var(--gray-50);}
-.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:24px}
-.logo i{color:var(--yellow-dark)} .logo span{color:var(--teal)}
-.header::after{content:"";display:block;height:2px;background:var(--blue-line)}
+    --collapsed:5.75rem;   --expanded:15rem;
+    --mainWide:55rem;      --mainNarrow:35rem;
+    --subW:23.75rem;       --gap:.1875rem;
+  }
 
-/* RIGHT-SIDEBAR NAV (1 : 1 copy) --------------------------------------*/
-nav{
-  width:92px;height:100vh;position:fixed;right:0;top:0;background:#fff;
-  border-left:2px solid var(--gray-200);box-shadow:-6px 0 10px rgba(0,0,0,.04);
-  display:flex;flex-direction:column;justify-content:space-between;padding:36px 0;z-index:1200;
-}
-.nav-links{display:flex;flex-direction:column;align-items:center;gap:38px}
-.nav-link{
-  text-decoration:none;font-size:23px;color:var(--gray-500);width:100%;display:flex;justify-content:center;
-  padding:8px 0;border-left:2px solid transparent;transition:.25s;
-}
-.nav-link:hover{color:var(--teal);background:var(--gray-50);border-left-color:var(--yellow)}
-.account-icon{width:48px;height:48px;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center}
+  *{margin:0;padding:0;box-sizing:border-box;font-family:"Segoe UI",system-ui,sans-serif}
 
-/* GRID -----------------------------------------------------------------*/
-#grid{display:flex;flex-wrap:wrap;gap:32px;padding:48px;margin-right:92px}
-.card{
-  width:calc(33.333% - 32px);min-width:260px;background:#fff;border:2px solid var(--gray-200);
-  padding:68px 32px 32px;position:relative;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.06);
-}
-.card::before{content:"";position:absolute;inset:0;border:2px solid var(--blue-line);
-              transform:translate(10px,10px);z-index:-1}
+  .header{
+    padding:1.125rem 2rem;
+    border-bottom:.125rem solid var(--gray-200);
+    display:flex;align-items:center;
+    background:var(--gray-50)
+  }
+  .logo{display:flex;align-items:center;gap:.625rem;font-weight:700;font-size:1.5rem}
+  .logo i{color:var(--yellow-dark)} .logo span{color:var(--teal)}
+  .header::after{content:"";display:block;height:.125rem;background:var(--blue-line)}
 
-/* task-name & actions (kept .tabL / .tabR classes so JS still works) ---*/
-.tabL,.tabR{
-  position:absolute;top:-18px;height:32px;line-height:28px;
-  background:#fff;border:2px solid var(--gray-200);font-size:14px;padding:0 14px;
-}
-.tabL{left:32px;font-weight:600;color:var(--gray-900)}
-.tabR{right:32px;display:flex;gap:14px;color:var(--teal);cursor:pointer}
-.tabL::before,.tabR::before{content:"";position:absolute;inset:0;border:2px solid var(--blue-line);
-                            transform:translate(6px,6px);z-index:-1}
-.tabR span{user-select:none}
+  nav#sidebar{
+    width:var(--collapsed);height:100vh;right:0;top:0;position:fixed;z-index:1200;
+    background:#fff;border-left:.125rem solid var(--gray-200);box-shadow:-.375rem 0 .625rem rgba(0,0,0,.04);
+    display:flex;flex-direction:column;padding-top:1.125rem;transition:.25s
+  }
+  body.nav-open nav#sidebar{width:var(--expanded)}
+  #navToggle{
+    background:none;border:none;color:var(--gray-500);font-size:1.375rem;
+    margin-bottom:2rem;padding:0 1.5rem;cursor:pointer;transition:.25s
+  }
+  body.nav-open #navToggle{transform:rotate(90deg)}
+  .nav-links{display:flex;flex-direction:column;gap:1rem}
+  .nav-link{
+    display:flex;align-items:center;gap:.75rem;padding:.75rem 1.5rem;
+    color:var(--gray-500);text-decoration:none;transition:.25s;position:relative
+  }
+  .nav-link .label{opacity:0;transform:translateX(.5rem);transition:.25s;white-space:nowrap}
+  body.nav-open .nav-link .label{opacity:1;transform:none}
+  body:not(.nav-open) .nav-link .label{display:none}
+  .nav-link:hover{color:var(--teal);background:var(--gray-50)}
+  .nav-link::before{
+    content:"";position:absolute;left:0;top:0;width:.25rem;background:transparent;transition:.25s
+  }
+  .nav-link:hover::before{background:var(--yellow);height:100%}
+  .nav-link.active{color:var(--teal);background:transparent}
+  .nav-link.active::before{
+    background:var(--yellow);
+    width:.25rem;
+    height:1.5rem;
+    top:50%;
+    transform:translateY(-50%);
+  }
+  .nav-link i{font-size:1.25rem;width:1.5rem;text-align:center;color:inherit}
+  body:not(.nav-open) .nav-link{justify-content:center;padding:.75rem 0;gap:0}
+  #pageShade{
+    position:fixed;inset:0;background:rgba(0,0,0,.3);backdrop-filter:blur(2px);
+    opacity:0;pointer-events:none;transition:.3s;z-index:1100
+  }
+  body.nav-open #pageShade{opacity:1;pointer-events:auto}
 
-/* card content ---------------------------------------------------------*/
-.card p{margin:0 0 10px;font-size:14px;color:var(--gray-700)}
-.attach a{display:block;font-size:13px;color:var(--teal);text-decoration:none;margin-bottom:6px}
-.attach a:hover{text-decoration:underline}
+  #grid{
+    display:flex;flex-wrap:wrap;gap:2rem;padding:3rem;
+    margin-right:var(--collapsed);transition:.25s
+  }
+  body.nav-open #grid{margin-right:var(--expanded)}
+  .card{
+    width:calc(33.333% - 2rem);min-width:16.25rem;
+    background:#fff;border:.125rem solid var(--gray-200);padding:4.25rem 2rem 2rem;
+    position:relative;cursor:pointer;box-shadow:0 .375rem 1rem rgba(0,0,0,.06)
+  }
+  .card::before{
+    content:"";position:absolute;inset:0;border:.125rem solid var(--blue-line);
+    transform:translate(.625rem,.625rem);z-index:-1
+  }
+  .tabL{
+    position:absolute;top:-1.125rem;left:2rem;
+    background:#fff;border:.125rem solid var(--gray-200);
+    padding:.25rem .75rem;font-weight:600;color:var(--gray-900)
+  }
+  .tabL::before{
+    content:"";position:absolute;inset:0;border:.125rem solid var(--blue-line);
+    transform:translate(.375rem,.375rem);z-index:-1
+  }
+  .tabR{
+    position:absolute;top:-1.125rem;right:2rem;
+    background:#fff;border:.125rem solid var(--gray-200);
+    padding:.25rem .75rem;font-size:.8125rem;color:var(--teal);cursor:pointer;
+    display:flex;gap:1.25rem;
+  }
+  .tabR::before{
+    content:"";position:absolute;inset:0;border:.125rem solid var(--blue-line);
+    transform:translate(.375rem,.375rem);z-index:-1
+  }
+  .tabR span{user-select:none;}
+  .card p{margin:0 0 10px;font-size:14px;color:var(--gray-700)}
+  .attach a{display:block;font-size:13px;color:var(--teal);text-decoration:none;margin-bottom:6px}
+  .attach a:hover{text-decoration:underline}
+  .empty{
+    width:100%;
+    text-align:center;
+    color:#666;
+    font-size:18px;
+    margin:40px 0;
+  }
+  #overlay{
+    position:fixed;inset:0;z-index:1100;
+    background:rgba(0,0,0,.3);
+    padding-bottom:2.5rem;
+    padding-left:var(--gap);
+    padding-right:calc(var(--collapsed) + var(--gap));
+    overflow-y:auto;
+    display:none;
+    transition:padding-right .25s ease;
+  }
+  body.nav-open #overlay{padding-right:calc(var(--expanded) + var(--gap));}
+  #overlay.show{display:block}
+  .modal{
+    background:#fff;border:.125rem solid var(--gray-200);
+    max-width:30rem;width:92%;max-height:80vh;
+    overflow:auto;position:relative;padding:2rem;box-shadow:0 6px 18px rgba(0,0,0,.09);
+    margin:2rem auto;
+  }
+  .modal::before{
+    content:"";position:absolute;inset:0;border:.125rem solid var(--blue-line);
+    transform:translate(.625rem,.625rem);z-index:-1
+  }
+  .modal h3{margin-top:0;font-size:1.2rem}
+  .close{
+    position:absolute;top:.5rem;right:.75rem;font-size:1.25rem;color:var(--gray-500);cursor:pointer
+  }
+  .modal input,.modal textarea,.modal select{
+    width:100%;padding:10px 12px;border:1px solid var(--gray-200);font-size:14px;margin-bottom:14px
+  }
+  .modal button{padding:10px 16px;border:none;background:var(--teal);color:#fff;font-size:14px;cursor:pointer}
+  .modal button:hover{background:#0b7d86}
 
-/* OVERLAY & MODAL (centre) --------------------------------------------*/
-#overlay{
-  position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;
-  justify-content:center;padding:40px 12px;z-index:1100;
-}
-#overlay.show{display:flex}
-.modal{
-  background:#fff;border:2px solid var(--gray-200);max-width:480px;width:92%;max-height:80vh;
-  overflow:auto;position:relative;padding:26px;box-shadow:0 6px 18px rgba(0,0,0,.09);
-}
-.modal::before{content:"";position:absolute;inset:0;border:2px solid var(--blue-line);
-               transform:translate(10px,10px);z-index:-1}
-.modal h3{margin-top:0;font-size:18px}
-.close{position:absolute;top:6px;right:10px;font-size:22px;color:var(--gray-500);cursor:pointer}
-
-/* form inputs inside modal ------------------------------------------- */
-.modal input,.modal textarea,.modal select{
-  width:100%;padding:10px 12px;border:1px solid var(--gray-200);font-size:14px;margin-bottom:14px}
-.modal button{padding:10px 16px;border:none;background:var(--teal);color:#fff;font-size:14px;cursor:pointer}
-.modal button:hover{background:#0b7d86}
-
-/* RESPONSIVE -----------------------------------------------------------*/
-@media(max-width:920px){.card{width:calc(50% - 32px)}}
-@media(max-width:640px){
-  nav{width:70px}#grid{margin-right:70px}.card{width:100%}
-}
-</style>
+  @media(max-width:57.5rem){.card{width:calc(50% - 2rem)}}
+  @media(max-width:40rem){
+    #grid{margin-right:4.375rem}
+    .card{width:100%}
+    .modal{max-width:94%}
+  }
+  </style>
 </head>
 <body>
-
-<!-- HEADER -->
-<div class="header">
-  <div class="logo"><i class="fas fa-tasks"></i><span>My tasks</span></div>
-</div>
-
-<h1 style="margin:32px 0 0 48px;color:var(--gray-900);font-size:28px;">My Tasks</h1>
-
-<!-- TASK GRID -->
-<div id="grid"></div>
-
-<!-- SIDEBAR NAV -->
-<nav>
-  <div class="nav-links">
-    <div class="account-icon"><i class="fas fa-user"></i></div>
-    <a href="#" class="nav-link"><i class="fas fa-home"></i></a>
-    <a href="#" class="nav-link"><i class="fas fa-project-diagram"></i></a>
-    <a href="#" class="nav-link"><i class="fas fa-tasks"></i></a>
-    <a href="#" class="nav-link"><i class="fas fa-info-circle"></i></a>
-    <a href="#" class="nav-link"><i class="fas fa-cog"></i></a>
+  <div class="header">
+    <div class="logo"><i class="fas fa-tasks"></i><span>My Tasks</span></div>
   </div>
-</nav>
+  <div id="grid"></div>
 
-<!-- POPUP CONTAINER -->
-<div id="overlay"></div>
-
-<!-- ORIGINAL JS (unchanged) ------------------------------------------->
-<script type="module">
-import { fetchWithAuth } from './auth.mjs';
-
-const grid    = document.getElementById('grid');
-const overlay = document.getElementById('overlay');
-let loaded = false;   // infinite-scroll stub
-
-/* helper */
-const show = html => {overlay.innerHTML=html; overlay.classList.add('show')}
-const close= ()    => overlay.classList.remove('show');
-window.closeOverlay = close;      // allow inline onclick
-
-/* ========= load tasks ========== */
-async function loadTasks(){
-  if (loaded) return;
-
-  const r  = await fetchWithAuth('http://127.0.0.1:8000/api/firm/tasks/by-name/');   // same URL
-  const data = await r.json();
-  if (!r.ok){ alert(data.detail || data.error || 'Could not load tasks'); return; }
-
-  if (data.length === 0){
-    grid.innerHTML = '<p style="color:#666">No tasks yet.</p>';
-    loaded = true; return;
-  }
-  data.forEach(renderCard);
-  loaded = true;
-}
-
-function renderCard(t){
-  const card = document.createElement('div');
-  card.className = 'card';
-
-  /* --- add firm line ----------------------------------------------- */
-  const firmLine = `<p><strong>Firm:</strong> ${t.firm}</p>`;
-  /* ------------------------------------------------------------------ */
-
-  card.innerHTML = `
-    <div class="tabL">${t.task_name}</div>
-    <div class="tabR"><span>Edit</span><span>Delete</span></div>
-
-    ${firmLine}
-    <p><strong>Status:</strong> ${t.status}</p>
-    <p>${t.description}</p>
-    ${t.contents ? `<p><strong>Contents:</strong> ${t.contents}</p>` : ''}
-
-    <div class="attach">
-       ${t.attachment ? `<a href="#" data-url="${t.attachment}">📎 attachment</a>` : ''}
+  <nav id="sidebar">
+    <button id="navToggle"><i class="fas fa-bars"></i></button>
+    <div class="nav-links">
+      <a href="../Misho/logedinoage.html" class="nav-link"><i class="fas fa-home"></i><span class="label">Home</span></a>
+      <a href="#" class="nav-link active"><i class="fas fa-tasks"></i><span class="label">My Tasks</span></a>
+      <a href="../Marto/invites.html" class="nav-link"><i class="fas fa-envelope-open-text"></i><span class="label">Invites</span></a>
+      <a href="../Marto/projmanage.html" class="nav-link"><i class="fas fa-project-diagram"></i><span class="label">Projects</span></a>
+      <a href="../Misho/Firmcreate.html" class="nav-link"><i class="fas fa-building"></i><span class="label">Create Firm</span></a>
+      <a href="../Misho/Support.html" class="nav-link"><i class="fas fa-life-ring"></i><span class="label">Support</span></a>
     </div>
-  `;
+  </nav>
+  <div id="pageShade"></div>
+  <div id="overlay"></div>
 
-  /* attachment preview */
-  const a = card.querySelector('a[data-url]');
-  if(a){
-    a.onclick = e=>{
-      e.preventDefault();
-      show(`<div class="modal">
-              <span class="close" onclick="closeOverlay()">&times;</span>
-              <h3>Attachment</h3>
-              <p><a href="${a.dataset.url}" target="_blank">Open in new tab ↗</a></p>
-            </div>`);
+  <script type="module">
+    import { fetchWithAuth } from "../Marto/auth.mjs";
+    document.getElementById("navToggle").onclick = () =>{
+      document.body.classList.toggle("nav-open");
     };
-  }
+    document.getElementById("pageShade").onclick = () =>{
+      document.body.classList.remove("nav-open");
+    };
+    const grid    = document.getElementById('grid');
+    const overlay = document.getElementById('overlay');
+    let loaded = false;
+    const show = html => {
+      overlay.innerHTML = html;
+      overlay.classList.add('show');
+    };
+    const close = () => overlay.classList.remove('show');
+    window.closeOverlay = close;
 
-  /* edit + delete */
-  const [editBtn, delBtn] = card.querySelector('.tabR').children;
-  editBtn.onclick = () => openEdit(t);
-  delBtn.onclick  = () => remove(t.task_id, card);
+    async function loadTasks(){
+      if(loaded) return;
+      const r = await fetchWithAuth('http://127.0.0.1:8000/api/firm/tasks/by-name/');
+      const data = await r.json();
+      if (!r.ok){
+        alert(data.detail||data.error||'Could not load tasks');
+        return;
+      }
+      if (!data.length){
+        grid.innerHTML = '<p class="empty">No tasks yet 🎉</p>';
+        loaded = true;
+        return;
+      }
+      data.forEach(renderCard);
+      loaded = true;
+    }
 
-  grid.appendChild(card);
-}
+    function renderCard(t){
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <div class="tabL">${t.task_name}</div>
+        <div class="tabR"><span>Edit</span><span>Delete</span></div>
+        <p><strong>Firm:</strong> ${t.firm}</p>
+        <p><strong>Status:</strong> ${t.status}</p>
+        <p>${t.description}</p>
+        ${t.contents?`<p><strong>Contents:</strong> ${t.contents}</p>`:''}
+        <div class="attach">
+          ${t.attachment?`<a href="#" data-url="${t.attachment}">📎 attachment</a>` : ''}
+        </div>`;
+      const a = card.querySelector('a[data-url]');
+      if(a){
+        a.onclick = e => {
+          e.preventDefault();
+          show(`<div class="modal">
+                  <span class="close" onclick="closeOverlay()">&times;</span>
+                  <h3>Attachment</h3>
+                  <p><a href="${a.dataset.url}" target="_blank">Open in new tab ↗</a></p>
+                </div>`);
+        };
+      }
+      const [editBtn, delBtn] = card.querySelector('.tabR').children;
+      editBtn.onclick = () => openEdit(t);
+      delBtn.onclick  = () => remove(t.task_id, card);
+      grid.appendChild(card);
+    }
 
-/* ========= edit modal ========== */
-function openEdit(task){
-  show(`
-   <div class="modal">
-     <span class="close" onclick="closeOverlay()">&times;</span>
-     <h3>Edit task</h3>
-     <input id="en" value="${task.task_name}">
-     <textarea id="ed" rows="4">${task.description}</textarea>
-     <select id="es">
-       <option value="unstarted">unstarted</option>
-       <option value="pending">pending</option>
-       <option value="complete">complete</option>
-     </select>
-     <input id="ef" type="file">
-     <button id="save">Save</button>
-   </div>`);
-  document.getElementById('es').value = task.status;
-  document.getElementById('save').onclick = async ()=>{
-      const fd=new FormData();
-      fd.append('name',       document.getElementById('en').value.trim());
-      fd.append('description',document.getElementById('ed').value.trim());
-      fd.append('status',     document.getElementById('es').value);
-      const f=document.getElementById('ef').files[0];
-      if(f) fd.append('attachment',f);
+    function openEdit(task){
+      show(`
+        <div class="modal">
+          <span class="close" onclick="closeOverlay()">&times;</span>
+          <h3>Edit task</h3>
+          <input id="en" value="${task.task_name}">
+          <textarea id="ed" rows="4">${task.description}</textarea>
+          <select id="es">
+            <option value="unstarted">unstarted</option>
+            <option value="pending">pending</option>
+            <option value="complete">complete</option>
+          </select>
+          <input id="ef" type="file">
+          <button id="save">Save</button>
+        </div>`);
+      document.getElementById('es').value = task.status;
+      document.getElementById('save').onclick = async () => {
+        const fd = new FormData();
+        fd.append('name',        document.getElementById('en').value.trim());
+        fd.append('description', document.getElementById('ed').value.trim());
+        fd.append('status',      document.getElementById('es').value);
+        const f = document.getElementById('ef').files[0];
+        if(f) fd.append('attachment', f);
+        const r = await fetchWithAuth(
+          `http://127.0.0.1:8000/api/firm/tasks/${task.task_id}/edit/`,
+          { method: 'PATCH', body: fd }
+        );
+        if(r.ok) location.reload();
+        else { const d=await r.json(); alert(d.detail||d.error||'edit failed'); }
+      };
+    }
 
-      const r = await fetchWithAuth(`http://127.0.0.1:8000/api/firm/tasks/${task.task_id}/edit/`,
-                                    {method:'PATCH',body:fd});
-      if(r.ok){ location.reload(); }
-      else{ const d=await r.json(); alert(d.detail||d.error||'edit failed'); }
-  };
-}
+    async function remove(id, node){
+      if(!confirm('Delete this task?')) return;
+      const r = await fetchWithAuth(
+        `http://127.0.0.1:8000/api/firm/tasks/${id}/delete/`,
+        { method: 'DELETE' }
+      );
+      if(r.status===204) node.remove();
+      else { const d=await r.json(); alert(d.detail||d.error||'delete failed'); }
+    }
 
-/* ========= delete ========== */
-async function remove(id, node){
-  if(!confirm('Delete this task?')) return;
-  const r = await fetchWithAuth(`http://127.0.0.1:8000/api/firm/tasks/${id}/delete/`,{method:'DELETE'});
-  if(r.status===204){ node.remove(); }
-  else{ const d=await r.json(); alert(d.detail||d.error||'delete failed'); }
-}
+    window.addEventListener('scroll', () => {
+      if(window.innerHeight + window.scrollY >= document.body.scrollHeight - 120)
+        loadTasks();
+    });
 
-/* ========= infinite scroll hook (stub) ========= */
-window.addEventListener('scroll',()=>{
-  if(window.innerHeight+window.scrollY>=document.body.scrollHeight-120) loadTasks();
-});
-loadTasks();
-</script>
+    loadTasks();
+  </script>
 </body>
 </html>

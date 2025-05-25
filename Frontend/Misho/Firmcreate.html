@@ -23,29 +23,60 @@
       --gray-900:#111827; --gray-700:#374151;
       --gray-500:#6b7280; --gray-200:#e5e7eb;
       --gray-50:#f8f9fb;
+      --collapsed:5.75rem;
+      --expanded:15rem;
     }
     *{margin:0;padding:0;box-sizing:border-box;font-family:"Segoe UI",system-ui,sans-serif}
     body{background:var(--gray-50);color:var(--gray-900);min-height:100vh;display:flex;flex-direction:column}
 
-    .header{padding:18px 32px;border-bottom:2px solid var(--gray-200);display:flex;align-items:center}
-    .logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:24px}
+    .header{padding:1.125rem 2rem;border-bottom:.125rem solid var(--gray-200);display:flex;align-items:center;background:var(--gray-50)}
+    .logo{display:flex;align-items:center;gap:.625rem;font-weight:700;font-size:1.5rem}
     .logo i{color:var(--yellow-dark)}  .logo span{color:var(--teal)}
-    .header::after{content:"";display:block;height:2px;background:var(--blue-line)}
+    .header::after{content:"";display:block;height:.125rem;background:var(--blue-line)}
 
-    nav{
-      width:92px;height:100vh;position:fixed;right:0;top:0;background:#fff;
-      border-left:2px solid var(--gray-200);box-shadow:-6px 0 10px rgba(0,0,0,.04);
-      display:flex;flex-direction:column;justify-content:space-between;padding:36px 0;z-index:90
+    /* SIDEBAR */
+    nav#sidebar{
+      width:var(--collapsed);height:100vh;right:0;top:0;position:fixed;z-index:1200;
+      background:#fff;border-left:.125rem solid var(--gray-200);box-shadow:-.375rem 0 .625rem rgba(0,0,0,.04);
+      display:flex;flex-direction:column;padding-top:1.125rem;transition:.25s
     }
-    .nav-links{display:flex;flex-direction:column;align-items:center;gap:38px}
+    body.nav-open nav#sidebar{width:var(--expanded)}
+    #navToggle{
+      background:none;border:none;color:var(--gray-500);font-size:1.375rem;
+      margin-bottom:2rem;padding:0 1.5rem;cursor:pointer;transition:.25s
+    }
+    body.nav-open #navToggle{transform:rotate(90deg)}
+    .nav-links{display:flex;flex-direction:column;gap:1rem}
     .nav-link{
-      text-decoration:none;font-size:23px;color:var(--gray-500);width:100%;display:flex;justify-content:center;
-      padding:8px 0;border-left:2px solid transparent;transition:.25s
+      display:flex;align-items:center;gap:.75rem;padding:.75rem 1.5rem;
+      color:var(--gray-500);text-decoration:none;transition:.25s;position:relative
     }
-    .nav-link:hover{color:var(--teal);background:var(--gray-50);border-left-color:var(--yellow)}
-    .account-icon{width:48px;height:48px;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center}
+    .nav-link .label{opacity:0;transform:translateX(.5rem);transition:.25s;white-space:nowrap}
+    body.nav-open .nav-link .label{opacity:1;transform:none}
+    body:not(.nav-open) .nav-link .label{display:none}
+    .nav-link:hover{color:var(--teal);background:var(--gray-50)}
+    .nav-link::before{
+      content:"";position:absolute;left:0;top:0;width:.25rem;background:transparent;transition:.25s
+    }
+    .nav-link:hover::before{background:var(--yellow);height:100%}
+    .nav-link.active{color:var(--teal);background:transparent}
+    .nav-link.active::before{
+      background:var(--yellow);
+      width:.25rem;
+      height:1.5rem;
+      top:50%;
+      transform:translateY(-50%);
+    }
+    .nav-link i{font-size:1.25rem;width:1.5rem;text-align:center;color:inherit}
+    body:not(.nav-open) .nav-link{justify-content:center;padding:.75rem 0;gap:0}
+    #pageShade{
+      position:fixed;inset:0;background:rgba(0,0,0,.3);backdrop-filter:blur(2px);
+      opacity:0;pointer-events:none;transition:.3s;z-index:1100
+    }
+    body.nav-open #pageShade{opacity:1;pointer-events:auto}
 
-    .main-area{flex:1;display:flex;gap:48px;padding:48px;margin-right:92px}
+    .main-area{flex:1;display:flex;gap:48px;padding:48px;margin-right:var(--collapsed);transition:.25s;}
+    body.nav-open .main-area{margin-right:var(--expanded);}
     .form-panel{
       flex:1;background:#fff;border:2px solid var(--gray-200);padding:48px;position:relative;
       box-shadow:0 6px 16px rgba(0,0,0,.06)
@@ -73,12 +104,12 @@
     .stat-change{font-size:12px;margin-top:10px;color:#2ecc71}
 
     @media(max-width:920px){
-      .main-area{flex-direction:column;margin-right:92px}
+      .main-area{flex-direction:column;margin-right:var(--collapsed)}
       .stats-col{flex-direction:row;width:auto;overflow-x:auto;padding-bottom:8px}
       .stat-card{min-width:180px}
     }
     @media(max-width:640px){
-      nav{width:70px}.main-area{padding:32px;margin-right:70px}
+      nav#sidebar{width:70px}.main-area{padding:32px;margin-right:70px}
     }
   </style>
 </head>
@@ -119,16 +150,18 @@
 </div>
 
 <!-- SIDEBAR NAV -->
-<nav>
+<nav id="sidebar">
+  <button id="navToggle" aria-label="toggle navigation"><i class="fas fa-bars"></i></button>
   <div class="nav-links">
-    <div class="account-icon"><i class="fas fa-user"></i></div>
-    <a href="#" class="nav-link"><i class="fas fa-home"></i></a>
-    <a href="#" class="nav-link"><i class="fas fa-project-diagram"></i></a>
-    <a href="#" class="nav-link"><i class="fas fa-tasks"></i></a>
-    <a href="#" class="nav-link"><i class="fas fa-info-circle"></i></a>
-    <a href="#" class="nav-link"><i class="fas fa-cog"></i></a>
+    <a href="../Misho/logedinoage.html" class="nav-link"><i class="fas fa-home"></i><span class="label">Home</span></a>
+    <a href="../ivan/displaytasks.html" class="nav-link"><i class="fas fa-tasks"></i><span class="label">My Tasks</span></a>
+    <a href="../Marto/invites.html" class="nav-link"><i class="fas fa-envelope-open-text"></i><span class="label">Invites</span></a>
+    <a href="../Marto/projmanage.html" class="nav-link"><i class="fas fa-project-diagram"></i><span class="label">Projects</span></a>
+    <a href="../Misho/Firmcreate.html" class="nav-link active"><i class="fas fa-building"></i><span class="label">Create Firm</span></a>
+    <a href="../Misho/Support.html" class="nav-link"><i class="fas fa-life-ring"></i><span class="label">Support</span></a>
   </div>
 </nav>
+<div id="pageShade"></div>
 
 <!-- SCRIPT -->
 <script type="module">
@@ -137,6 +170,13 @@ import { fetchWithAuth } from "../Marto/auth.mjs";
 const $ = id => document.getElementById(id);
 const msgOk  = $('msgOk');
 const msgErr = $('msgErr');
+
+document.getElementById("navToggle").onclick = () => {
+  document.body.classList.toggle("nav-open");
+};
+document.getElementById("pageShade").onclick = () => {
+  document.body.classList.remove("nav-open");
+};
 
 $('createBtn').addEventListener('click', async ()=>{
   msgOk.style.display = msgErr.style.display = 'none';

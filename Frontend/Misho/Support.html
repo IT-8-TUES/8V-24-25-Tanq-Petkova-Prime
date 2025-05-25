@@ -7,101 +7,74 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
-      --yellow: #ffd247;
-      --teal: #0d8f9a;
-      --light-gray: #f8f9fb;
-      --dark-gray: #111827;
-      --gray-line: rgba(13, 143, 154, 0.2);
+      --yellow:#ffd247; --yellow-dark:#e0b633;
+      --teal:#0d8f9a; --blue-line:#0d8f9a40;
+      --gray-900:#111827; --gray-700:#374151;
+      --gray-500:#6b7280; --gray-200:#e5e7eb;
+      --gray-50:#f8f9fb;
+      --collapsed:5.75rem; --expanded:15rem;
     }
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: var(--light-gray);
-      color: var(--dark-gray);
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
+    *{margin:0;padding:0;box-sizing:border-box;font-family:"Segoe UI",system-ui,sans-serif}
+    body{background:var(--gray-50);color:var(--gray-900);min-height:100vh;display:flex;flex-direction:column}
+    .header{padding:1.125rem 2rem;border-bottom:.125rem solid var(--gray-200);display:flex;align-items:center;background:var(--gray-50)}
+    .logo{display:flex;align-items:center;gap:.625rem;font-weight:700;font-size:1.5rem}
+    .logo i{color:var(--yellow-dark)}  .logo span{color:var(--teal)}
+    .header::after{content:"";display:block;height:.125rem;background:var(--blue-line)}
+
+    /* SIDEBAR */
+    nav#sidebar{
+      width:var(--collapsed);height:100vh;right:0;top:0;position:fixed;z-index:1200;
+      background:#fff;border-left:.125rem solid var(--gray-200);box-shadow:-.375rem 0 .625rem rgba(0,0,0,.04);
+      display:flex;flex-direction:column;padding-top:1.125rem;transition:.25s
     }
-    .line {
-      height: 2px;
-      background: var(--gray-line);
+    body.nav-open nav#sidebar{width:var(--expanded)}
+    #navToggle{
+      background:none;border:none;color:var(--gray-500);font-size:1.375rem;
+      margin-bottom:2rem;padding:0 1.5rem;cursor:pointer;transition:.25s
     }
-    .header {
-      padding: 20px 30px;
-      display: flex;
-      align-items: center;
-      border-bottom: 2px solid #e5e7eb;
+    body.nav-open #navToggle{transform:rotate(90deg)}
+    .nav-links{display:flex;flex-direction:column;gap:1rem}
+    .nav-link{
+      display:flex;align-items:center;gap:.75rem;padding:.75rem 1.5rem;
+      color:var(--gray-500);text-decoration:none;transition:.25s;position:relative
     }
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-weight: 700;
-      font-size: 24px;
+    .nav-link .label{opacity:0;transform:translateX(.5rem);transition:.25s;white-space:nowrap}
+    body.nav-open .nav-link .label{opacity:1;transform:none}
+    body:not(.nav-open) .nav-link .label{display:none}
+    .nav-link:hover{color:var(--teal);background:var(--gray-50)}
+    .nav-link::before{
+      content:"";position:absolute;left:0;top:0;width:.25rem;background:transparent;transition:.25s
     }
-    .logo i {
-      color: #e0b633;
+    .nav-link:hover::before{background:var(--yellow);height:100%}
+    .nav-link.active{color:var(--teal);background:transparent}
+    .nav-link.active::before{
+      background:var(--yellow);
+      width:.25rem;
+      height:1.5rem;
+      top:50%;
+      transform:translateY(-50%);
     }
-    .logo span {
-      color: var(--teal);
+    .nav-link i{font-size:1.25rem;width:1.5rem;text-align:center;color:inherit}
+    body:not(.nav-open) .nav-link{justify-content:center;padding:.75rem 0;gap:0}
+    #pageShade{
+      position:fixed;inset:0;background:rgba(0,0,0,.3);backdrop-filter:blur(2px);
+      opacity:0;pointer-events:none;transition:.3s;z-index:1100
     }
-    nav {
-      width: 90px;
-      height: 100vh;
-      background: white;
-      position: fixed;
-      top: 0;
-      right: 0;
-      padding: 36px 0;
-      border-left: 2px solid #e5e7eb;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      z-index: 100;
-    }
-    .nav-links {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 35px;
-    }
-    .nav-link {
-      text-decoration: none;
-      color: #6b7280;
-      font-size: 22px;
-      padding: 8px 0;
-      border-left: 2px solid transparent;
-      width: 100%;
-      text-align: center;
-    }
-    .nav-link:hover {
-      color: var(--teal);
-      background: var(--light-gray);
-      border-left: 2px solid var(--yellow);
-    }
-    .account-icon {
-      background: var(--teal);
-      color: white;
-      width: 48px;
-      height: 48px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      border-radius: 50%;
-      margin-bottom: 20px;
-    }
+    body.nav-open #pageShade{opacity:1;pointer-events:auto}
+
     .mainArea {
       flex: 1;
-      margin-right: 90px; 
-      padding: 40px;
+      margin-right:var(--collapsed);
+      padding: 48px;
       display: flex;
       justify-content: center;
+      transition:.25s;
     }
+    body.nav-open .mainArea { margin-right:var(--expanded);}
     .supportContent {
       background: white;
       padding: 40px;
-      border: 2px solid #e5e7eb;
+      border: 2px solid var(--gray-200);
       position: relative;
       box-shadow: 0 6px 16px rgba(0,0,0,.04);
       max-width: 800px;
@@ -111,7 +84,7 @@
       content: "";
       position: absolute;
       inset: 0;
-      border: 2px solid var(--gray-line);
+      border: 2px solid var(--blue-line);
       transform: translate(6px, 6px);
       z-index: -1;
     }
@@ -202,15 +175,19 @@
       text-align: center;
       font-size: 14px;
       color: #6b7280;
-      margin-right: 90px;
-      border-top: 2px solid #e5e7eb;
+      margin-right:var(--collapsed);
+      border-top: 2px solid var(--gray-200);
+      transition:.25s;
+    }
+    body.nav-open footer {
+      margin-right:var(--expanded);
     }
     @media (max-width: 768px) {
       .mainArea {
         padding: 30px;
         margin-right: 70px;
       }
-      nav {
+      nav#sidebar {
         width: 70px;
       }
       footer {
@@ -227,6 +204,10 @@
 </head>
 <body>
   <div class="header">
+    <div class="logo">
+      <i class="fas fa-tasks"></i>
+      <span>TanqTasks</span>
+    </div>
   </div>
   <div class="mainArea">
     <div class="supportContent">
@@ -282,19 +263,30 @@
       </div>
     </div>
   </div>
-  <nav>
+  <!-- SIDEBAR NAV 1:1 -->
+  <nav id="sidebar">
+    <button id="navToggle" aria-label="toggle navigation"><i class="fas fa-bars"></i></button>
     <div class="nav-links">
-      <div class="account-icon"><i class="fas fa-user"></i></div>
-      <a href="#" class="nav-link"><i class="fas fa-home"></i></a>
-      <a href="#" class="nav-link"><i class="fas fa-project-diagram"></i></a>
-      <a href="#" class="nav-link"><i class="fas fa-tasks"></i></a>
-      <a href="#" class="nav-link"><i class="fas fa-info-circle"></i></a>
-      <a href="#" class="nav-link"><i class="fas fa-cog"></i></a>
+      <a href="../Misho/logedinoage.html" class="nav-link"><i class="fas fa-home"></i><span class="label">Home</span></a>
+      <a href="../ivan/displaytasks.html" class="nav-link"><i class="fas fa-tasks"></i><span class="label">My Tasks</span></a>
+      <a href="../Marto/invites.html" class="nav-link"><i class="fas fa-envelope-open-text"></i><span class="label">Invites</span></a>
+      <a href="../Marto/projmanage.html" class="nav-link"><i class="fas fa-project-diagram"></i><span class="label">Projects</span></a>
+      <a href="../Misho/Firmcreate.html" class="nav-link"><i class="fas fa-building"></i><span class="label">Create Firm</span></a>
+      <a href="../Misho/Support.html" class="nav-link active"><i class="fas fa-life-ring"></i><span class="label">Support</span></a>
     </div>
   </nav>
-
+  <div id="pageShade"></div>
   <footer>
     © 2025 TanqTasks — all rights reserved.
   </footer>
+  <script>
+    // sidebar toggle
+    document.getElementById("navToggle").onclick = () => {
+      document.body.classList.toggle("nav-open");
+    };
+    document.getElementById("pageShade").onclick = () => {
+      document.body.classList.remove("nav-open");
+    };
+  </script>
 </body>
 </html>
