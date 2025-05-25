@@ -13,8 +13,8 @@
       --dark: #212529;
       --gray: #6c757d;
       --light-gray: #e9ecef;
-      --border-radius: 12px;
-      --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      --border-radius: 0.75rem;
+      --box-shadow: 0 0.25rem 1.25rem rgba(0, 0, 0, 0.08);
       --transition: all 0.3s ease;
     }
     * {
@@ -28,13 +28,13 @@
       color: var(--dark);
       min-height: 100vh;
       margin: 0;
-      padding: 0 0 0 100px;
+      padding: 0 0 0 6.25rem;
       display: flex;
       justify-content: flex-start;
     }
     .main-content {
       width: 100%;
-      max-width: 800px;
+      max-width: 50rem;
       padding: 3rem 0;
     }
     .header {
@@ -45,9 +45,9 @@
       font-weight: 700;
       color: var(--dark);
     }
-        .stats-container {
+    .stats-container {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(13.75rem, 1fr));
       gap: 1.5rem;
       margin-bottom: 2rem;
     }
@@ -119,10 +119,10 @@
     .form-control:focus {
       outline: none;
       border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+      box-shadow: 0 0 0 0.1875rem rgba(67, 97, 238, 0.2);
     }
     textarea.form-control {
-      min-height: 120px;
+      min-height: 7.5rem;
       resize: vertical;
     }
     .file-upload {
@@ -186,8 +186,8 @@
     }
     @media (max-width: 768px) {
       body {
-        padding-left: 20px;
-        padding-right: 20px;
+        padding-left: 1.25rem;
+        padding-right: 1.25rem;
       }
       .main-content {
         padding: 1.5rem 0;
