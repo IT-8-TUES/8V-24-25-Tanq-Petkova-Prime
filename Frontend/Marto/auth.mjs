@@ -14,7 +14,7 @@ export async function loginAndSave(username, password) {
     console.log("✅ login OK, tokens saved");
   }
   
-  async function refreshAccess() {
+async function refreshAccess() {
     const refresh = localStorage.getItem("refresh_token");
     if (!refresh) {
       console.warn("no refresh token in storage");
@@ -42,7 +42,7 @@ export async function loginAndSave(username, password) {
     return true;
   }
   
-  export async function fetchWithAuth(url, opts = {}, retry = true) {
+export async function fetchWithAuth(url, opts = {}, retry = true) {
     const access = localStorage.getItem("access_token");
     const r1 = await fetch(url, {
       ...opts,
@@ -54,6 +54,7 @@ export async function loginAndSave(username, password) {
     console.warn(`🔒 401 on ${url}`);
   
     if (!retry || !(await refreshAccess())) {
+      window.location.href = "../Misho/heropage.html";
       return r1;
     }
     // retry with fresh access
