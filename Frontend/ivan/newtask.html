@@ -14,24 +14,32 @@
       --dark: #1e293b;
       --gray: #64748b;
     }
+
+    html {
+      font-size: 16px;
+    }
+
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
       font-family: 'Segoe UI', system-ui, sans-serif;
     }
+
     body {
       background-color: var(--light);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
     }
+
     header {
       padding: 1.5rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
+
     .logo {
       display: flex;
       align-items: center;
@@ -40,9 +48,11 @@
       font-weight: 700;
       color: var(--primary);
     }
+
     .logo-icon {
       color: var(--accent);
     }
+
     main {
       flex: 1;
       display: flex;
@@ -50,34 +60,39 @@
       justify-content: center;
       padding: 2rem;
     }
+
     .form-card {
       background: white;
       padding: 2rem;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border-radius: 0.625rem; 
+      box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1); 
       width: 100%;
-      max-width: 600px;
+      max-width: 37.5rem; 
     }
+
     .form-card h2 {
       text-align: center;
       margin-bottom: 1.5rem;
       color: var(--dark);
     }
+
     label {
       display: block;
       margin-bottom: 0.5rem;
       color: var(--gray);
       font-weight: 500;
     }
+
     input, textarea, select {
       width: 100%;
       padding: 0.75rem 1rem;
       border: 1px solid #ddd;
-      border-radius: 6px;
+      border-radius: 0.375rem; 
       font-size: 1rem;
       margin-bottom: 1rem;
       background: #fff;
     }
+
     button {
       width: 100%;
       padding: 0.75rem;
@@ -86,25 +101,30 @@
       font-size: 1rem;
       font-weight: 600;
       border: none;
-      border-radius: 6px;
+      border-radius: 0.375rem; 
       cursor: pointer;
       transition: background-color 0.3s;
     }
+
     button:hover {
       background-color: #d97706;
     }
+
     .msg {
       text-align: center;
       font-size: 0.95rem;
       margin-top: 1rem;
       display: none;
     }
+
     .msg.ok {
       color: #10b981;
     }
+
     .msg.error {
       color: #ef4444;
     }
+
     footer {
       text-align: center;
       padding: 1rem;
@@ -129,8 +149,9 @@
       </select>
 
       <label for="memberSel">Member </label>
-      <select id="memberSel" disabled>
-        <option value="">— choose firm first —</option>
+      <select id="memberSel">
+        <option value="1">Member</option>
+        <option value="2">Admin</option>
       </select>
 
       <label for="name">Task name </label>
